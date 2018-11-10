@@ -6,47 +6,48 @@ ARG GCC_ARM_NAME=gcc-arm-none-eabi-7-2018-q2-update
 RUN apt-get -y update && \
 	apt-get -y upgrade && \
 	apt-get install --no-install-recommends -y \
-	git \
-	git-core \
+	autoconf \
+	automake \
 	build-essential \
-	cmake \
-	ninja-build \
-	gperf \
 	ccache \
-	doxygen \
-	dfu-util \
+	cmake \
 	device-tree-compiler \
-	python3-ply \
-	python3-pip \
-	python3-setuptools \
-	xz-utils \
+	dfu-util \
+	doxygen \
 	file \
-	make \
 	g++ \
 	gcc \
 	gcc-multilib \
-	texinfo \
-	wget \
-	sudo \
-	libglib2.0-dev \
-	pkg-config \
-	libpcap-dev \
-	autoconf \
-	automake \
-	libtool \
-	socat \
-	iproute2 \
-	net-tools \
 	gcovr \
-	valgrind \
-	ninja-build \
+	git \
+	git-core \
+	gperf \
+	iproute2 \
 	lcov \
+	libglib2.0-dev \
+	libpcap-dev \
+	libtool \
+	locales \
+	make \
+	net-tools \
+	ninja-build \
+	ninja-build \
+	pkg-config \
+	python3-pip \
+	python3-ply \
+	python3-setuptools \
 	qemu \
-	locales && \
+	socat \
+	sudo \
+	texinfo \
+	valgrind \
+	wget \
+	xz-utils && \
 	rm -rf /var/lib/apt/lists/*
 
 RUN wget -q https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/master/scripts/requirements.txt && \
 	pip3 install wheel &&\
+	pip3 install west &&\
  	pip3 install -r requirements.txt && \
 	pip3 install sh
 
