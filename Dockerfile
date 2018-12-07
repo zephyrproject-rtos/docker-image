@@ -43,6 +43,9 @@ RUN apt-get -y update && \
 	valgrind \
 	wget \
 	xz-utils && \
+	wget -O dtc.deb http://security.ubuntu.com/ubuntu/pool/main/d/device-tree-compiler/device-tree-compiler_1.4.7-1_amd64.deb && \
+	dpkg -i dtc.deb && \
+	rm dtc.deb && \
 	rm -rf /var/lib/apt/lists/*
 
 RUN wget -q https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/master/scripts/requirements.txt && \
