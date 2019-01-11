@@ -19,7 +19,6 @@ RUN dpkg --add-architecture i386 && \
 	automake \
 	build-essential \
 	ccache \
-	cmake \
 	device-tree-compiler \
 	dfu-util \
 	doxygen \
@@ -80,6 +79,12 @@ RUN wget -q https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/${
 	tar xf ${GCC_ARM_NAME}-linux.tar.bz2 && \
 	rm -f ${GCC_ARM_NAME}-linux.tar.bz2 && \
 	mv ${GCC_ARM_NAME} /opt/toolchains/${GCC_ARM_NAME}
+
+RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2-Linux-x86_64.sh && \
+	chmod +x cmake-3.13.2-Linux-x86_64.sh && \
+	./cmake-3.13.2-Linux-x86_64.sh --skip-license --prefix=/usr/local && \
+	rm -f ./cmake-3.13.2-Linux-x86_64.sh
+
 
 RUN useradd -m -G plugdev user \
 	&& echo 'user ALL = NOPASSWD: ALL' > /etc/sudoers.d/user \
