@@ -9,6 +9,12 @@ RUN dpkg --add-architecture i386 && \
 	apt-get -y update && \
 	apt-get -y upgrade && \
 	apt-get install --no-install-recommends -y \
+	gnupg \
+	ca-certificates && \
+	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF && \
+	echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main" | tee /etc/apt/sources.list.d/mono-official-stable.list && \
+	apt-get -y update && \
+	apt-get install --no-install-recommends -y \
 	autoconf \
 	automake \
 	build-essential \
@@ -25,14 +31,17 @@ RUN dpkg --add-architecture i386 && \
 	git \
 	git-core \
 	gperf \
+	gtk-sharp2 \
 	iproute2 \
 	lcov \
 	libglib2.0-dev \
+	libgtk2.0-0 \
 	libpcap-dev \
 	libsdl2-dev:i386 \
 	libtool \
 	locales \
 	make \
+	mono-complete \
 	net-tools \
 	ninja-build \
 	openbox \
@@ -52,7 +61,9 @@ RUN dpkg --add-architecture i386 && \
 	xz-utils && \
 	wget -O dtc.deb http://security.ubuntu.com/ubuntu/pool/main/d/device-tree-compiler/device-tree-compiler_1.4.7-1_amd64.deb && \
 	dpkg -i dtc.deb && \
-	rm dtc.deb && \
+	wget -O renode.deb https://github.com/renode/renode/releases/download/v1.6.2/renode_1.6.2_amd64.deb && \
+	apt install -y ./renode.deb && \
+	rm dtc.deb renode.deb && \
 	rm -rf /var/lib/apt/lists/*
 
 RUN wget -q https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/master/scripts/requirements.txt && \
