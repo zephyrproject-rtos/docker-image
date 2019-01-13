@@ -65,11 +65,18 @@ RUN dpkg --add-architecture i386 && \
 	rm dtc.deb renode.deb && \
 	rm -rf /var/lib/apt/lists/*
 
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+
 RUN wget -q https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/master/scripts/requirements.txt && \
 	pip3 install wheel &&\
-	pip3 install west &&\
 	pip3 install -r requirements.txt && \
+	pip3 install west &&\
 	pip3 install sh
+
 
 RUN wget -q "https://github.com/zephyrproject-rtos/meta-zephyr-sdk/releases/download/${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-setup.run" && \
 	sh "zephyr-sdk-${ZSDK_VERSION}-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} && \
@@ -91,10 +98,6 @@ RUN useradd -m -G plugdev user \
 	&& chmod 0440 /etc/sudoers.d/user
 
 # Set the locale
-RUN locale-gen en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
 ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
 ENV ZEPHYR_SDK_INSTALL_DIR=/opt/toolchains/zephyr-sdk-${ZSDK_VERSION}
 ENV ZEPHYR_BASE=/workdir
