@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 
-ARG ZSDK_VERSION=0.9.5
+ARG ZSDK_VERSION=0.10.0
 ARG GCC_ARM_NAME=gcc-arm-none-eabi-7-2018-q2-update
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -78,7 +78,7 @@ RUN wget -q https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/master/s
 	pip3 install sh
 
 
-RUN wget -q "https://github.com/zephyrproject-rtos/meta-zephyr-sdk/releases/download/${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-setup.run" && \
+RUN wget -q "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-setup.run" && \
 	sh "zephyr-sdk-${ZSDK_VERSION}-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} && \
 	rm "zephyr-sdk-${ZSDK_VERSION}-setup.run"
 
