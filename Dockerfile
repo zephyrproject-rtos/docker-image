@@ -1,6 +1,6 @@
 FROM ubuntu:18.04
 
-ARG ZSDK_VERSION=0.10.1
+ARG ZSDK_VERSION=0.10.3
 ARG GCC_ARM_NAME=gcc-arm-none-eabi-7-2018-q2-update
 
 ENV DEBIAN_FRONTEND noninteractive
