@@ -33,6 +33,14 @@ docker run -ti -v $HOME/Work/github/zephyr:/workdir \
 docker.io/zephyrprojectrtos/zephyr-build:latest
 ```
 
+The image is also available on hub.docker.com, so you can pull the image
+from it.:
+
+```
+docker login
+docker pull zephyrprojectrtos/zephyr-build
+```
+
 The environment is set and ready to go, no need to source zephyr-env.sh.
 
 We have two toolchains installed:
