@@ -21,6 +21,7 @@ RUN dpkg --add-architecture i386 && \
 	ccache \
 	device-tree-compiler \
 	dfu-util \
+	dos2unix \
 	doxygen \
 	file \
 	g++ \
@@ -108,6 +109,7 @@ ENV DISPLAY=:0
 RUN chown -R user:user /home/user
 
 ADD ./entrypoint.sh /home/user/entrypoint.sh
+RUN dos2unix /home/user/entrypoint.sh
 
 EXPOSE 5900
 
