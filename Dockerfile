@@ -1,7 +1,10 @@
 FROM ubuntu:18.04
 
 ARG ZSDK_VERSION=0.10.3
-ARG GCC_ARM_NAME=gcc-arm-none-eabi-7-2018-q2-update
+ARG GCC_ARM_NAME=gcc-arm-none-eabi-9-2019-q4-major
+ARG CMAKE_VERSION=3.16.2
+ARG RENODE_VERSION=1.8.2
+ARG DTS_VERSION=1.4.7
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -58,9 +61,9 @@ RUN dpkg --add-architecture i386 && \
 	x11vnc \
 	xvfb \
 	xz-utils && \
-	wget -O dtc.deb http://security.ubuntu.com/ubuntu/pool/main/d/device-tree-compiler/device-tree-compiler_1.4.7-1_amd64.deb && \
+	wget -O dtc.deb http://security.ubuntu.com/ubuntu/pool/main/d/device-tree-compiler/device-tree-compiler_${DTS_VERSION}-1_amd64.deb && \
 	dpkg -i dtc.deb && \
-	wget -O renode.deb https://github.com/renode/renode/releases/download/v1.6.2/renode_1.6.2_amd64.deb && \
+	wget -O renode.deb https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb && \
 	apt install -y ./renode.deb && \
 	rm dtc.deb renode.deb && \
 	rm -rf /var/lib/apt/lists/*
@@ -82,15 +85,15 @@ RUN wget -q "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${Z
 	sh "zephyr-sdk-${ZSDK_VERSION}-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} && \
 	rm "zephyr-sdk-${ZSDK_VERSION}-setup.run"
 
-RUN wget -q https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2018q2/${GCC_ARM_NAME}-linux.tar.bz2  && \
-	tar xf ${GCC_ARM_NAME}-linux.tar.bz2 && \
-	rm -f ${GCC_ARM_NAME}-linux.tar.bz2 && \
+RUN wget -q https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/RC2.1/${GCC_ARM_NAME}-x86_64-linux.tar.bz2  && \
+	tar xf ${GCC_ARM_NAME}-x86_64-linux.tar.bz2 && \
+	rm -f ${GCC_ARM_NAME}-x86_64-linux.tar.bz2 && \
 	mv ${GCC_ARM_NAME} /opt/toolchains/${GCC_ARM_NAME}
 
-RUN wget -q https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2-Linux-x86_64.sh && \
-	chmod +x cmake-3.13.2-Linux-x86_64.sh && \
-	./cmake-3.13.2-Linux-x86_64.sh --skip-license --prefix=/usr/local && \
-	rm -f ./cmake-3.13.2-Linux-x86_64.sh
+RUN wget -q https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
+	chmod +x cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
+	./cmake-${CMAKE_VERSION}-Linux-x86_64.sh --skip-license --prefix=/usr/local && \
+	rm -f ./cmake-${CMAKE_VERSION}-Linux-x86_64.sh
 
 
 RUN useradd -m -G plugdev user \
