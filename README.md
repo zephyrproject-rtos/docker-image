@@ -5,7 +5,7 @@ Docker image suitable for development, similar to what we have in CI.
 This docker image can be built with
 
 ```
-docker build -t zephyr_doc:v<tag> .
+docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t zephyr_doc:v<tag> .
 ```
 
 and can be used for development and building zephyr samples and tests,
