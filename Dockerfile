@@ -6,6 +6,9 @@ ARG CMAKE_VERSION=3.16.2
 ARG RENODE_VERSION=1.8.2
 ARG DTS_VERSION=1.4.7
 
+ARG UID=1000
+ARG GID=1000
+
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN dpkg --add-architecture i386 && \
@@ -96,8 +99,9 @@ RUN wget -q https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}
 	./cmake-${CMAKE_VERSION}-Linux-x86_64.sh --skip-license --prefix=/usr/local && \
 	rm -f ./cmake-${CMAKE_VERSION}-Linux-x86_64.sh
 
+RUN groupadd -g $GID -o user
 
-RUN useradd -m -G plugdev user \
+RUN useradd -u $UID -U -m -G plugdev user \
 	&& echo 'user ALL = NOPASSWD: ALL' > /etc/sudoers.d/user \
 	&& chmod 0440 /etc/sudoers.d/user
 
