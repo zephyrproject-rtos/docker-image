@@ -62,7 +62,7 @@ RUN dpkg --add-architecture i386 && \
 	x11vnc \
 	xvfb \
 	xz-utils && \
-	wget -O dtc.deb http://security.ubuntu.com/ubuntu/pool/main/d/device-tree-compiler/device-tree-compiler_${DTS_VERSION}-1_amd64.deb && \
+	wget -O dtc.deb http://security.ubuntu.com/ubuntu/pool/main/d/device-tree-compiler/device-tree-compiler_${DTS_VERSION}-3_amd64.deb && \
 	dpkg -i dtc.deb && \
 	wget -O renode.deb https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb && \
 	apt install -y ./renode.deb && \
