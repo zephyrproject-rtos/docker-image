@@ -1,0 +1,26 @@
+# Copyright (c) 2020 Linaro Limited.
+# SPDX-License-Identifier: Apache-2.0
+
+# Git Hub workflow to build docker container on PR to make sure
+# any changes to the container still produce a work container
+
+name: Docker Image CI
+
+on: [pull_request]
+
+env:
+  DOCKER_USER: zephyrprojectrtos
+  DOCKER_REPO: zephyr-build
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build the Docker image
+      run: |
+        docker build . --file Dockerfile --tag docker.io/${DOCKER_USER}/${DOCKER_REPO}:${{ github.sha }}

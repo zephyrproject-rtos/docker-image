@@ -1,0 +1,51 @@
+# Copyright (c) 2020 Linaro Limited.
+# SPDX-License-Identifier: Apache-2.0
+
+# Git Hub workflow to publish a container to docker hub
+# This only happens on commits or tags.
+
+name: Docker Publish
+
+on: [push]
+
+env:
+  DOCKER_USER: zephyrprojectrtos
+  DOCKER_REPO: zephyr-build
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Docker Tag
+      id: docker_tag
+      run: |
+        # If push due to a normal commit to master GITHUB_REF will look like
+        # refs/heads/master convert that to 'latest'
+        if [ ${GITHUB_REF} == "refs/heads/master" ]; then
+           echo ::set-output name=DOCKER_TAG::latest;
+        else
+           # If push due to a tag GITHUB_REF will look like refs/tags/TAG-FOO
+           # chop of 'refs/tags' so DOCKER_TAG=TAG-FOO
+           echo ::set-output name=DOCKER_TAG::${GITHUB_REF/refs\/tags\//};
+        fi
+
+    - uses: azure/docker-login@v1
+      with:
+        username: ${{ env.DOCKER_USER }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - uses: actions/checkout@v2
+
+    - name: build
+      env:
+        DOCKER_TAG: ${{ steps.docker_tag.outputs.DOCKER_TAG }}
+      run: |
+        docker build . --file Dockerfile --tag docker.io/${DOCKER_USER}/${DOCKER_REPO}:${DOCKER_TAG}
+
+    - name: push
+      env:
+        DOCKER_TAG: ${{ steps.docker_tag.outputs.DOCKER_TAG }}
+      run: |
+        pwd
+        docker push docker.io/${DOCKER_USER}/${DOCKER_REPO}:${DOCKER_TAG}
