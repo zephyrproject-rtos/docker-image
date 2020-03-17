@@ -4,7 +4,7 @@ ARG ZSDK_VERSION=0.11.2
 ARG GCC_ARM_NAME=gcc-arm-none-eabi-9-2019-q4-major
 ARG CMAKE_VERSION=3.16.2
 ARG RENODE_VERSION=1.8.2
-ARG DTS_VERSION=1.4.7
+ARG DTS_VERSION=1.4.7-3
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -62,7 +62,7 @@ RUN dpkg --add-architecture i386 && \
 	x11vnc \
 	xvfb \
 	xz-utils && \
-	wget -O dtc.deb http://security.ubuntu.com/ubuntu/pool/main/d/device-tree-compiler/device-tree-compiler_${DTS_VERSION}-1_amd64.deb && \
+	wget -O dtc.deb http://security.ubuntu.com/ubuntu/pool/main/d/device-tree-compiler/device-tree-compiler_${DTS_VERSION}_amd64.deb && \
 	dpkg -i dtc.deb && \
 	wget -O renode.deb https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb && \
 	apt install -y ./renode.deb && \
