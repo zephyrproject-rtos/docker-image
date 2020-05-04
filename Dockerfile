@@ -52,6 +52,7 @@ RUN dpkg --add-architecture i386 && \
 	ninja-build \
 	openbox \
 	pkg-config \
+	python3-dev \
 	python3-pip \
 	python3-ply \
 	python3-setuptools \
