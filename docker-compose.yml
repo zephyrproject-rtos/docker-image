@@ -1,0 +1,52 @@
+version: '3.8'
+
+service:
+  iscanner_dev_env:
+    image: ${IMAGE_NAME}
+    build:
+      context: .
+      dockerfile: DockerFile
+      args:
+        BUILD_DIR: /mnt/IScanner
+        UID: $UID
+        GID: $GID
+        VNCPASSWD: 'zephyr'
+    stdin_open: true
+    tty: true
+    hostname: ISCANNER_DEV
+    privileged: true
+
+    entrypoint: ./docker-image/entrypoint.sh
+    volumes:
+      - type: bind
+        source: .
+        target: /mnt/IScanner
+
+      - type: bind
+        source: ${HOME}/.docker_bash_history
+        target: /root/.bash_history
+
+      - type: bind
+        source: ${HOME}/.docker_bashrc
+        target: /root/.bashrc
+
+      - type: bind
+        source: ${SHARE_BIND_VOLUME}
+        target: /mnt/share
+
+      - type: volume
+        source: IScanner_data_volume
+        target: /mnt/data/
+
+      - ${HOME}/.gitconfig:/root/.gitconfig:ro
+      - ${HOME}/.ssh/config:/root/.ssh/config:ro
+
+secrets:
+  ssh_id_rsa_pub_secret:
+    file: ${HOME}/.ssh/id_rsa.pub
+  ssh_id_rsa_private_secret:
+    file: ${HOME}/.ssh/id_rsa
+
+volumes:
+  eos_data_volume:
+    name: ${ISCANNER_DATA_VOLUME}

@@ -6,8 +6,9 @@ ARG CMAKE_VERSION=3.18.0
 ARG RENODE_VERSION=1.9.0
 ARG DTS_VERSION=1.4.7
 
-ARG UID=1000
-ARG GID=1000
+ARG BUILD_DIR
+ARG UID
+ARG GID
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -121,17 +122,14 @@ ENV DISPLAY=:0
 
 RUN chown -R user:user /home/user
 
-ADD ./entrypoint.sh /home/user/entrypoint.sh
-RUN dos2unix /home/user/entrypoint.sh
+# ADD ./entrypoint.sh /home/user/entrypoint.sh
+# RUN dos2unix /home/user/entrypoint.sh
 
 EXPOSE 5900
 
-ENTRYPOINT ["/home/user/entrypoint.sh"]
-CMD ["/bin/bash"]
-USER user
-WORKDIR /workdir
-VOLUME ["/workdir"]
-
-ARG VNCPASSWD=zephyr
-RUN mkdir ~/.vnc && x11vnc -storepasswd ${VNCPASSWD} ~/.vnc/passwd
-
+# ENTRYPOINT ["/home/user/entrypoint.sh"]
+# CMD ["/bin/bash"]
+USER dev
+RUN mkdir -p ${BUILD_DIR}
+WORKDIR ${BUILD_DIR}
+# VOLUME ["/workdir"]
