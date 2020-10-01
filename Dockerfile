@@ -79,12 +79,9 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 
-RUN wget -q https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/master/scripts/requirements.txt && \
-	cat requirements.txt | sed "s?^-r ?https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/master/scripts/?g" | xargs wget -q && \
-	pip3 install wheel &&\
-	pip3 install -r requirements.txt && \
-	wget -q https://raw.githubusercontent.com/zephyrproject-rtos/mcuboot/master/scripts/requirements.txt -O mcuboot_requirements.txt && \
-	pip3 install -r mcuboot_requirements.txt && \
+RUN pip3 install wheel &&\
+	pip3 install -r https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/master/scripts/requirements.txt && \
+	pip3 install -r https://raw.githubusercontent.com/zephyrproject-rtos/mcuboot/master/scripts/requirements.txt && \
 	pip3 install west &&\
 	pip3 install sh
 
