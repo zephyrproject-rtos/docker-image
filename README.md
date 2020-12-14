@@ -5,14 +5,14 @@ Docker image suitable for development, similar to what we have in CI.
 This docker image can be built with
 
 ```
-docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t zephyr_doc:v<tag> .
+docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t zephyr-build:v<tag> .
 ```
 
 and can be used for development and building zephyr samples and tests,
 for example:
 
 ```
-docker run -ti -v <path to zephyr tree>:/workdir zephyr_doc:v<tag>
+docker run -ti -v <path to zephyr workspace>:/workdir zephyr-build:v<tag>
 ```
 
 Then, follow the steps below to build a sample application:
@@ -29,7 +29,7 @@ The image is also available on docker.io, so you can skip the build step
 and directly pull from docker.io and build:
 
 ```
-docker run -ti -v $HOME/Work/github/zephyr:/workdir \
+docker run -ti -v $HOME/Work/zephyrproject:/workdir \
 docker.io/zephyrprojectrtos/zephyr-build:latest
 ```
 
@@ -47,7 +47,7 @@ connect to the docker instance port 5900 needs to be forwarded to the host,
 for example:
 
 ```
-docker run -ti -p 5900:5900 -v <path to zephyr tree>:/workdir zephyr_doc:v<tag>
+docker run -ti -p 5900:5900 -v <path to zephyr workspace>:/workdir zephyr-build:v<tag>
 ```
 
 Then, follow the steps below to build a display sample application for the
