@@ -4,7 +4,6 @@ ARG ZSDK_VERSION=0.11.4
 ARG GCC_ARM_NAME=gcc-arm-none-eabi-10-2020-q4-major
 ARG CMAKE_VERSION=3.18.3
 ARG RENODE_VERSION=1.11.0
-ARG DTS_COMPILER=device-tree-compiler_1.4.7-3_amd64
 
 ARG UID=1000
 ARG GID=1000
@@ -17,8 +16,7 @@ RUN dpkg --add-architecture i386 && \
 	apt-get install --no-install-recommends -y \
 	wget
 
-RUN wget -q --show-progress --progress=bar:force:noscroll --no-check-certificate http://ftp.debian.org/debian/pool/main/d/device-tree-compiler/${DTS_COMPILER}.deb && \
-	wget -q --show-progress --progress=bar:force:noscroll --no-check-certificate https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb && \
+RUN wget -q --show-progress --progress=bar:force:noscroll --no-check-certificate https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb && \
 	wget -q --show-progress --progress=bar:force:noscroll --no-check-certificate https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-setup.run && \
 	wget -q --show-progress --progress=bar:force:noscroll --no-check-certificate https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/${GCC_ARM_NAME}-x86_64-linux.tar.bz2  && \
 	wget -q --show-progress --progress=bar:force:noscroll --no-check-certificate https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh
@@ -74,16 +72,14 @@ RUN apt-get install --no-install-recommends -y \
 	x11vnc \
 	xvfb \
 	xz-utils && \
-	apt install -y ./${DTS_COMPILER}.deb && \
 	apt install -y ./renode_${RENODE_VERSION}_amd64.deb && \
-	rm ${DTS_COMPILER}.deb renode_${RENODE_VERSION}_amd64.deb && \
+	rm renode_${RENODE_VERSION}_amd64.deb && \
 	rm -rf /var/lib/apt/lists/*
 
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
-
 
 RUN pip3 install wheel &&\
 	pip3 install -r https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/master/scripts/requirements.txt && \
