@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 ARG ZSDK_VERSION=0.12.0
 ARG GCC_ARM_NAME=gcc-arm-none-eabi-10-2020-q4-major
