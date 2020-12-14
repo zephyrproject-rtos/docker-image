@@ -1,10 +1,10 @@
 FROM ubuntu:18.04
 
 ARG ZSDK_VERSION=0.11.4
-ARG GCC_ARM_NAME=gcc-arm-none-eabi-9-2019-q4-major
-ARG CMAKE_VERSION=3.18.0
-ARG RENODE_VERSION=1.9.0
-ARG DTS_VERSION=1.4.7
+ARG GCC_ARM_NAME=gcc-arm-none-eabi-10-2020-q4-major
+ARG CMAKE_VERSION=3.18.3
+ARG RENODE_VERSION=1.11.0
+ARG DTS_COMPILER=device-tree-compiler_1.4.7-3_amd64
 
 ARG UID=1000
 ARG GID=1000
@@ -15,6 +15,15 @@ RUN dpkg --add-architecture i386 && \
 	apt-get -y update && \
 	apt-get -y upgrade && \
 	apt-get install --no-install-recommends -y \
+	wget
+
+RUN wget -q --show-progress --progress=bar:force:noscroll --no-check-certificate http://ftp.debian.org/debian/pool/main/d/device-tree-compiler/${DTS_COMPILER}.deb && \
+	wget -q --show-progress --progress=bar:force:noscroll --no-check-certificate https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb && \
+	wget -q --show-progress --progress=bar:force:noscroll --no-check-certificate https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-setup.run && \
+	wget -q --show-progress --progress=bar:force:noscroll --no-check-certificate https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/${GCC_ARM_NAME}-x86_64-linux.tar.bz2  && \
+	wget -q --show-progress --progress=bar:force:noscroll --no-check-certificate https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh
+
+RUN apt-get install --no-install-recommends -y \
 	gnupg \
 	ca-certificates && \
 	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF && \
@@ -62,15 +71,12 @@ RUN dpkg --add-architecture i386 && \
 	sudo \
 	texinfo \
 	valgrind \
-	wget \
 	x11vnc \
 	xvfb \
 	xz-utils && \
-	wget -O dtc.deb http://security.ubuntu.com/ubuntu/pool/main/d/device-tree-compiler/device-tree-compiler_${DTS_VERSION}-3ubuntu2_amd64.deb && \
-	dpkg -i dtc.deb && \
-	wget -O renode.deb https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb && \
-	apt install -y ./renode.deb && \
-	rm dtc.deb renode.deb && \
+	apt install -y ./${DTS_COMPILER}.deb && \
+	apt install -y ./renode_${RENODE_VERSION}_amd64.deb && \
+	rm ${DTS_COMPILER}.deb renode_${RENODE_VERSION}_amd64.deb && \
 	rm -rf /var/lib/apt/lists/*
 
 RUN locale-gen en_US.UTF-8
@@ -85,18 +91,15 @@ RUN pip3 install wheel &&\
 	pip3 install west &&\
 	pip3 install sh
 
+RUN mkdir -p /opt/toolchains
 
-RUN wget -q "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-setup.run" && \
-	sh "zephyr-sdk-${ZSDK_VERSION}-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} && \
+RUN sh "zephyr-sdk-${ZSDK_VERSION}-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} && \
 	rm "zephyr-sdk-${ZSDK_VERSION}-setup.run"
 
-RUN wget -q https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/RC2.1/${GCC_ARM_NAME}-x86_64-linux.tar.bz2  && \
-	tar xf ${GCC_ARM_NAME}-x86_64-linux.tar.bz2 && \
-	rm -f ${GCC_ARM_NAME}-x86_64-linux.tar.bz2 && \
-	mv ${GCC_ARM_NAME} /opt/toolchains/${GCC_ARM_NAME}
+RUN tar -xf ${GCC_ARM_NAME}-x86_64-linux.tar.bz2 -C /opt/toolchains/ && \
+	rm -f ${GCC_ARM_NAME}-x86_64-linux.tar.bz2
 
-RUN wget -q https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
-	chmod +x cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
+RUN chmod +x cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
 	./cmake-${CMAKE_VERSION}-Linux-x86_64.sh --skip-license --prefix=/usr/local && \
 	rm -f ./cmake-${CMAKE_VERSION}-Linux-x86_64.sh
 
