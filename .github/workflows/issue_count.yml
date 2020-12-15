@@ -1,0 +1,31 @@
+on:
+  issues:
+    types: [opened, edited, milestoned, labeled, closed]
+
+env:
+  OUTPUT_FILE_NAME: IssuesReport.md
+  COMMITTER_EMAIL: actions@github.com
+  COMMITTER_NAME: github-actions
+  COMMITTER_USERNAME: github-actions
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+    - uses: brcrista/summarize-issues@v3
+      with:
+        title: 'My Issues Report'
+        configPath: '.github/workflows/issues-report-config.json'
+        outputPath: ${{ env.OUTPUT_FILE_NAME }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: upload-stats
+      uses: actions/upload-artifact@master
+      continue-on-error: True
+      with:
+        name: env.OUTPUT_FILE_NAME
+        path: env.OUTPUT_FILE_NAME
