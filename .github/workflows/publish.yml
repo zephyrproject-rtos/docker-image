@@ -6,7 +6,11 @@
 
 name: Docker Publish
 
-on: [push]
+on:
+  push:
+    paths:
+    - 'Dockerfile'
+    - 'entrypoint.sh'
 
 env:
   DOCKER_USER: zephyrprojectrtos
