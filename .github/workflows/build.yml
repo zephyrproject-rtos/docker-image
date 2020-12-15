@@ -6,7 +6,11 @@
 
 name: Docker Image CI
 
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+    - 'Dockerfile'
+    - 'entrypoint.sh'
 
 env:
   DOCKER_USER: zephyrprojectrtos
