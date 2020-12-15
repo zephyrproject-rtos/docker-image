@@ -15,7 +15,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Get configuration file
+      run: |
+        wget https://raw.githubusercontent.com/$GITHUB_REPOSITORY/master/.github/workflows/issues-report-config.json
 
     - name: install-packages
       run: |
@@ -24,7 +26,7 @@ jobs:
     - uses: brcrista/summarize-issues@v3
       with:
         title: 'Issues Report for ${{ github.repository }}'
-        configPath: '.github/workflows/issues-report-config.json'
+        configPath: 'issues-report-config.json'
         outputPath: ${{ env.OUTPUT_FILE_NAME }}
         token: ${{ secrets.GITHUB_TOKEN }}
 
