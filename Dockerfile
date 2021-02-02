@@ -40,6 +40,7 @@ RUN apt-get install --no-install-recommends -y \
 	g++ \
 	gcc \
 	gcc-multilib \
+	g++-multilib \
 	gcovr \
 	git \
 	git-core \
