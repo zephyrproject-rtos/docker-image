@@ -11,6 +11,8 @@ on:
     paths:
     - 'Dockerfile'
     - 'entrypoint.sh'
+    tags:
+    - 'v*'
 
 env:
   DOCKER_USER: zephyrprojectrtos
