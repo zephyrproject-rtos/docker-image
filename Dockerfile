@@ -53,6 +53,7 @@ RUN dpkg --add-architecture i386 && \
 	python3-ply \
 	python3-setuptools \
 	python-xdg \
+	python3-dev \
 	qemu \
 	socat \
 	sudo \
@@ -62,7 +63,7 @@ RUN dpkg --add-architecture i386 && \
 	x11vnc \
 	xvfb \
 	xz-utils && \
-	wget -O dtc.deb http://security.ubuntu.com/ubuntu/pool/main/d/device-tree-compiler/device-tree-compiler_${DTS_VERSION}-1_amd64.deb && \
+	wget -O dtc.deb http://ftp.debian.org/debian/pool/main/d/device-tree-compiler//device-tree-compiler_${DTS_VERSION}-4_amd64.deb && \
 	dpkg -i dtc.deb && \
 	wget -O renode.deb https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb && \
 	apt install -y ./renode.deb && \
@@ -74,12 +75,13 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
+RUN pip3 install wheel &&\
+        pip3 install cryptography==3.3.2 && \
+        pip3 install -r https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/master/scripts/requirements.txt && \
+        pip3 install -r https://raw.githubusercontent.com/zephyrproject-rtos/mcuboot/master/scripts/requirements.txt && \
+        pip3 install west &&\
+        pip3 install sh
 
-RUN wget -q https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/master/scripts/requirements.txt && \
-	pip3 install wheel &&\
-	pip3 install -r requirements.txt && \
-	pip3 install west &&\
-	pip3 install sh
 
 
 RUN wget -q "https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-setup.run" && \
