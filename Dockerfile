@@ -71,6 +71,7 @@ RUN apt-get install --no-install-recommends -y \
 	texinfo \
 	valgrind \
 	x11vnc \
+	xterm \
 	xvfb \
 	xz-utils && \
 	apt install -y ./renode_${RENODE_VERSION}_amd64.deb && \
