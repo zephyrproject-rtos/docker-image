@@ -1,11 +1,18 @@
-# docker-image
-Docker image suitable for development, similar to what we have in CI.
+# Zephyr Docker Images
 
+We have 2 images:
+
+- CI Image: This is the image used in CI, we try to keep this self-contained.
+  The image only has the minimal set of software needed for CI operation.
+- Developer Image: Based on the base CI image, we provide additional tools that
+  can be used for development anywhere.
+
+## Developer Docker Image
 
 This docker image can be built with
 
 ```
-docker build --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t zephyr-build:v<tag> .
+docker build -f Dockerfile.user --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t zephyr-build:v<tag> .
 ```
 
 and can be used for development and building zephyr samples and tests,

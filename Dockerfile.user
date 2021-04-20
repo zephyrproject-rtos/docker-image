@@ -1,0 +1,39 @@
+ARG FROM_TAG
+FROM zephyrprojectrtos/ci:${FROM_TAG:-latest}
+
+RUN dpkg --add-architecture i386 && \
+        apt-get -y update && \
+        apt-get -y upgrade && \
+        apt-get install --no-install-recommends -y \
+	openbox \
+	python-xdg \
+	libpython3.8-dev \
+	x11vnc \
+	xvfb \
+	xterm \
+	xz-utils && \
+	rm -rf /var/lib/apt/lists/*
+
+ENV DISPLAY=:0
+ENV ZEPHYR_BASE=/workdir/zephyr
+
+ADD ./entrypoint.sh /home/user/entrypoint.sh
+ADD ./bash_completion /home/user/.bash_completion
+RUN mkdir -p /home/user/.bash_completion.d
+RUN chown -R user:user /home/user
+
+RUN dos2unix /home/user/entrypoint.sh
+
+EXPOSE 5900
+
+ENTRYPOINT ["/home/user/entrypoint.sh"]
+CMD ["/bin/bash"]
+USER user
+
+WORKDIR /workdir
+VOLUME ["/workdir"]
+
+
+ARG VNCPASSWD=zephyr
+RUN mkdir ~/.vnc && x11vnc -storepasswd ${VNCPASSWD} ~/.vnc/passwd
+
