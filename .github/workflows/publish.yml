@@ -6,22 +6,17 @@
 
 name: Docker Publish
 
-on:
-  push:
-    paths:
-    - 'Dockerfile'
-    - 'entrypoint.sh'
-    tags:
-    - 'v*'
+on: [push]
 
 env:
   DOCKER_USER: zephyrprojectrtos
-  DOCKER_REPO: zephyr-build
+  DOCKER_REPO: ci
+  DOCKER_REPO2: zephyr-build
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    if: github.repository == 'zephyrproject-rtos/docker-image'
     steps:
     - name: Docker Tag
       id: docker_tag
@@ -47,11 +42,18 @@ jobs:
       env:
         DOCKER_TAG: ${{ steps.docker_tag.outputs.DOCKER_TAG }}
       run: |
+        df -h
+        # remove a few things to free up space
+        sudo rm -rf "/usr/local/share/boost"
+        sudo rm -rf "/usr/local/lib/android"
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        df -h
         docker build . --file Dockerfile --tag docker.io/${DOCKER_USER}/${DOCKER_REPO}:${DOCKER_TAG}
+        docker build . --file Dockerfile.user --build-arg FROM_TAG=${DOCKER_TAG} --tag docker.io/${DOCKER_USER}/${DOCKER_REPO2}:${DOCKER_TAG}
 
     - name: push
       env:
         DOCKER_TAG: ${{ steps.docker_tag.outputs.DOCKER_TAG }}
       run: |
-        pwd
         docker push docker.io/${DOCKER_USER}/${DOCKER_REPO}:${DOCKER_TAG}
+        docker push docker.io/${DOCKER_USER}/${DOCKER_REPO2}:${DOCKER_TAG}

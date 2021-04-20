@@ -6,24 +6,28 @@
 
 name: Docker Image CI
 
-on:
-  pull_request:
-    paths:
-    - 'Dockerfile'
-    - 'entrypoint.sh'
+on: [pull_request]
 
 env:
   DOCKER_USER: zephyrprojectrtos
-  DOCKER_REPO: zephyr-build
+  DOCKER_REPO: ci
+  DOCKER_REPO2: zephyr-build
 
 jobs:
 
   build:
-    name: "Build Docker image"
     runs-on: ubuntu-latest
+    if: github.repository == 'zephyrproject-rtos/docker-image'
     steps:
     - uses: actions/checkout@v2
 
     - name: Build the Docker image
       run: |
+        df -h
+        # remove a few things to free up space
+        sudo rm -rf "/usr/local/share/boost"
+        sudo rm -rf "/usr/local/lib/android"
+        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+        df -h
         docker build . --file Dockerfile --tag docker.io/${DOCKER_USER}/${DOCKER_REPO}:${{ github.sha }}
+        docker build . --build-arg FROM_TAG=${{ github.sha }} --file Dockerfile.user --tag docker.io/${DOCKER_USER}/${DOCKER_REPO2}:latest
