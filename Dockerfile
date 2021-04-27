@@ -27,6 +27,7 @@ RUN dpkg --add-architecture i386 && \
 	lsb-release \
 	autoconf \
 	automake \
+	bison \
 	build-essential \
 	ccache \
 	device-tree-compiler \
@@ -34,7 +35,9 @@ RUN dpkg --add-architecture i386 && \
 	dos2unix \
 	doxygen \
 	file \
+	flex \
 	g++ \
+	gawk \
 	gcc \
 	gcc-multilib \
 	g++-multilib \
@@ -43,15 +46,20 @@ RUN dpkg --add-architecture i386 && \
 	git-core \
 	gperf \
 	gtk-sharp2 \
+	help2man \
 	iproute2 \
 	lcov \
 	libglib2.0-dev \
 	libgtk2.0-0 \
+	liblocale-gettext-perl \
+	libncurses5-dev \
 	libpcap-dev \
+	libpopt0 \
 	libsdl2-dev:i386 \
 	libsdl1.2-dev \
 	libsdl2-dev \
 	libtool \
+	libtool-bin \
 	locales \
 	make \
 	net-tools \
@@ -64,10 +72,12 @@ RUN dpkg --add-architecture i386 && \
 	python3-setuptools \
 	python-is-python3 \
 	qemu \
+	rsync \
 	socat \
 	srecord \
 	sudo \
 	texinfo \
+	unzip \
 	valgrind \
 	wget \
 	xz-utils && \
