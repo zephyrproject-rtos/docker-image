@@ -59,6 +59,7 @@ RUN dpkg --add-architecture i386 && \
 	libsdl2-dev:i386 \
 	libsdl1.2-dev \
 	libsdl2-dev \
+	libssl-dev \
 	libtool \
 	libtool-bin \
 	locales \
