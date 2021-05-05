@@ -106,10 +106,6 @@ RUN pip3 install wheel pip -U &&\
 
 RUN mkdir -p /opt/toolchains
 
-RUN wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-x86_64-linux-setup.run && \
-	sh "zephyr-sdk-${ZSDK_VERSION}-x86_64-linux-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} && \
-	rm "zephyr-sdk-${ZSDK_VERSION}-x86_64-linux-setup.run"
-
 RUN wget ${WGET_ARGS} https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/${GCC_ARM_NAME}-x86_64-linux.tar.bz2  && \
 	tar -xf ${GCC_ARM_NAME}-x86_64-linux.tar.bz2 -C /opt/toolchains/ && \
 	rm -f ${GCC_ARM_NAME}-x86_64-linux.tar.bz2
@@ -134,6 +130,10 @@ RUN cd /opt/bsim && \
 	make everything -j 8 && \
 	echo ${BSIM_VERSION} > ./version && \
 	chmod ag+w . -R
+
+RUN wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-x86_64-linux-setup.run && \
+	sh "zephyr-sdk-${ZSDK_VERSION}-x86_64-linux-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} && \
+	rm "zephyr-sdk-${ZSDK_VERSION}-x86_64-linux-setup.run"
 
 RUN apt-get clean && \
 	sudo apt-get autoremove --purge
