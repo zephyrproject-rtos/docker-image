@@ -82,8 +82,6 @@ RUN dpkg --add-architecture i386 && \
 	valgrind \
 	wget \
 	xz-utils && \
-	apt remove libclang1-10 -y && \
-	apt autoremove -y && \
 	wget ${WGET_ARGS} https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb && \
 	apt install -y ./renode_${RENODE_VERSION}_amd64.deb && \
 	rm renode_${RENODE_VERSION}_amd64.deb && \
