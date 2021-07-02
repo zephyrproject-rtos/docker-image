@@ -66,6 +66,7 @@ RUN dpkg --add-architecture i386 && \
 	make \
 	net-tools \
 	ninja-build \
+	openssh-client \
 	pkg-config \
 	protobuf-compiler \
 	python3-dev \
