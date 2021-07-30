@@ -1,7 +1,7 @@
 FROM ubuntu:20.04
 
 ARG ZSDK_VERSION=0.12.4
-ARG ZSDK_ALT_VERSION=0.13.0-rc3
+ARG ZSDK_ALT_VERSION=0.13.0-rc4
 ARG GCC_ARM_NAME=gcc-arm-none-eabi-10-2020-q4-major
 ARG CMAKE_VERSION=3.18.3
 ARG RENODE_VERSION=1.12.0
@@ -136,9 +136,9 @@ RUN wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/down
 	sh "zephyr-sdk-${ZSDK_VERSION}-x86_64-linux-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} && \
 	rm "zephyr-sdk-${ZSDK_VERSION}-x86_64-linux-setup.run"
 
-RUN wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_ALT_VERSION}/zephyr-sdk-${ZSDK_ALT_VERSION}-x86_64-linux-setup.run && \
-	sh "zephyr-sdk-${ZSDK_ALT_VERSION}-x86_64-linux-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_ALT_VERSION} && \
-	rm "zephyr-sdk-${ZSDK_ALT_VERSION}-x86_64-linux-setup.run"
+RUN wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_ALT_VERSION}/zephyr-sdk-${ZSDK_ALT_VERSION}-linux-x86_64-setup.run && \
+	sh "zephyr-sdk-${ZSDK_ALT_VERSION}-linux-x86_64-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_ALT_VERSION} && \
+	rm "zephyr-sdk-${ZSDK_ALT_VERSION}-linux-x86_64-setup.run"
 
 RUN apt-get clean && \
 	sudo apt-get autoremove --purge
