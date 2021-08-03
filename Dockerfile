@@ -84,9 +84,6 @@ RUN dpkg --add-architecture i386 && \
 	valgrind \
 	wget \
 	xz-utils && \
-	wget ${WGET_ARGS} https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb && \
-	apt install -y ./renode_${RENODE_VERSION}_amd64.deb && \
-	rm renode_${RENODE_VERSION}_amd64.deb && \
 	rm -rf /var/lib/apt/lists/*
 
 RUN locale-gen en_US.UTF-8
@@ -120,25 +117,6 @@ RUN wget ${WGET_ARGS} https://apt.llvm.org/llvm.sh && \
 	chmod +x llvm.sh && \
 	./llvm.sh ${LLVM_VERSION} && \
 	rm llvm.sh
-
-RUN mkdir -p /opt/bsim
-RUN cd /opt/bsim && \
-	rm -f repo && \
-	wget ${WGET_ARGS} https://storage.googleapis.com/git-repo-downloads/repo && \
-	chmod a+x ./repo && \
-	python3 ./repo init -u https://github.com/BabbleSim/manifest.git -m zephyr_docker.xml -b ${BSIM_VERSION} --depth 1 &&\
-	python3 ./repo sync && \
-	make everything -j 8 && \
-	echo ${BSIM_VERSION} > ./version && \
-	chmod ag+w . -R
-
-RUN wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-x86_64-linux-setup.run && \
-	sh "zephyr-sdk-${ZSDK_VERSION}-x86_64-linux-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} && \
-	rm "zephyr-sdk-${ZSDK_VERSION}-x86_64-linux-setup.run"
-
-RUN wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_ALT_VERSION}/zephyr-sdk-${ZSDK_ALT_VERSION}-linux-x86_64-setup.run && \
-	sh "zephyr-sdk-${ZSDK_ALT_VERSION}-linux-x86_64-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_ALT_VERSION} && \
-	rm "zephyr-sdk-${ZSDK_ALT_VERSION}-linux-x86_64-setup.run"
 
 RUN apt-get clean && \
 	sudo apt-get autoremove --purge
