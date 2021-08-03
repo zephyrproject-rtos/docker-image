@@ -116,10 +116,9 @@ RUN wget ${WGET_ARGS} https://github.com/Kitware/CMake/releases/download/v${CMAK
 	./cmake-${CMAKE_VERSION}-Linux-x86_64.sh --skip-license --prefix=/usr/local && \
 	rm -f ./cmake-${CMAKE_VERSION}-Linux-x86_64.sh
 
-RUN wget ${WGET_ARGS} https://apt.llvm.org/llvm.sh && \
-	chmod +x llvm.sh && \
-	./llvm.sh ${LLVM_VERSION} && \
-	rm llvm.sh
+RUN wget ${WGET_ARGS} -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
+	apt-get update && \
+	apt-get install -y clang-$LLVM_VERSION lldb-$LLVM_VERSION lld-$LLVM_VERSION clangd-$LLVM_VERSION llvm-$LLVM_VERSION-dev
 
 RUN mkdir -p /opt/bsim
 RUN cd /opt/bsim && \
