@@ -83,6 +83,7 @@ RUN dpkg --add-architecture i386 && \
 	unzip \
 	valgrind \
 	wget \
+	ovmf \
 	xz-utils && \
 	wget ${WGET_ARGS} https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb && \
 	apt install -y ./renode_${RENODE_VERSION}_amd64.deb && \
@@ -148,8 +149,16 @@ RUN useradd -u $UID -m -g user -G plugdev user \
 	&& echo 'user ALL = NOPASSWD: ALL' > /etc/sudoers.d/user \
 	&& chmod 0440 /etc/sudoers.d/user
 
+RUN wget ${WGET_ARGS} https://static.rust-lang.org/rustup/rustup-init.sh && \
+	chmod +x rustup-init.sh && \
+	./rustup-init.sh -y && \
+	. $HOME/.cargo/env && \
+	cargo install uefi-run && \
+	rm -f ./rustup-init.sh
+
 # Set the locale
 ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
 ENV ZEPHYR_SDK_INSTALL_DIR=/opt/toolchains/zephyr-sdk-${ZSDK_VERSION}
 ENV GNUARMEMB_TOOLCHAIN_PATH=/opt/toolchains/${GCC_ARM_NAME}
 ENV PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig
+ENV OVMF_FD_PATH=/usr/share/ovmf/OVMF.fd
