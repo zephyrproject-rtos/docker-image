@@ -153,7 +153,7 @@ RUN wget ${WGET_ARGS} https://static.rust-lang.org/rustup/rustup-init.sh && \
 	chmod +x rustup-init.sh && \
 	./rustup-init.sh -y && \
 	. $HOME/.cargo/env && \
-	cargo install uefi-run && \
+	cargo install uefi-run --root /usr && \
 	rm -f ./rustup-init.sh
 
 # Set the locale
