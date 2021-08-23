@@ -31,8 +31,11 @@ RUN dpkg --add-architecture i386 && \
 	bison \
 	build-essential \
 	ccache \
+	chrpath \
+	cpio \
 	device-tree-compiler \
 	dfu-util \
+	diffstat \
 	dos2unix \
 	doxygen \
 	file \
