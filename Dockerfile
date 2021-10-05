@@ -135,7 +135,7 @@ RUN cd /opt/bsim && \
 	chmod ag+w . -R
 
 RUN wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run && \
-	sh "zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} && \
+	sh "zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} -y -norc && \
 	rm "zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run"
 
 RUN apt-get clean && \
