@@ -134,10 +134,6 @@ RUN cd /opt/bsim && \
 	echo ${BSIM_VERSION} > ./version && \
 	chmod ag+w . -R
 
-RUN wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run && \
-	sh "zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} -y -norc && \
-	rm "zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run"
-
 RUN apt-get clean && \
 	sudo apt-get autoremove --purge
 
@@ -153,6 +149,18 @@ RUN wget ${WGET_ARGS} https://static.rust-lang.org/rustup/rustup-init.sh && \
 	. $HOME/.cargo/env && \
 	cargo install uefi-run --root /usr && \
 	rm -f ./rustup-init.sh
+
+# Install Zephyr SDK as 'user' in order to ensure that the `Zephyr-sdk` CMake
+# package is located in the package registry under the user's home directory.
+USER user
+
+RUN sudo -E -- sh -c ' \
+	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run && \
+	sh "zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} -y -norc && \
+	rm "zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run" \
+	'
+
+USER root
 
 # Set the locale
 ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
