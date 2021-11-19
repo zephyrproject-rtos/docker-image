@@ -157,7 +157,8 @@ USER user
 RUN sudo -E -- sh -c ' \
 	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run && \
 	sh "zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} -y -norc && \
-	rm "zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run" \
+	rm "zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run" && \
+	chown -R user:user /home/user/.cmake \
 	'
 
 USER root
