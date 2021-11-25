@@ -132,7 +132,8 @@ RUN pip3 install wheel pip -U &&\
 	pip3 install awscli PyGithub junitparser pylint \
 		     statistics numpy \
 		     imgtool \
-		     protobuf
+		     protobuf \
+		     GitPython
 
 # Install BSIM
 RUN mkdir -p /opt/bsim && \
