@@ -18,8 +18,23 @@ docker build -f Dockerfile.user --build-arg UID=$(id -u) --build-arg GID=$(id -g
 and can be used for development and building zephyr samples and tests,
 for example:
 
+Clone the zephyr repo:
 ```
-docker run -ti -v <path to zephyr workspace>:/workdir zephyr-build:v<tag>
+git clone git@github.com:zephyrproject-rtos/zephyr.git \
+pushd zephyr; \
+ZEPHYR_SOURCE=$(pwd); \
+popd
+```
+
+Choose a working directory:
+```
+ZEPHYR_WORKDIR=/workdir/zephyr
+```
+
+Run the container:
+
+```
+docker run -ti -w=$ZEPHYR_WORKDIR -v $ZEPHYR_SOURCE:$ZEPHYR_WORKDIR zephyr-build:v<tag>
 ```
 
 Then, follow the steps below to build a sample application:
@@ -76,6 +91,3 @@ For example on a Ubuntu host system:
 ```
 vncviewer localhost:5900
 ```
-
-
-
