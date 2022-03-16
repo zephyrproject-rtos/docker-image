@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-ARG ZSDK_VERSION=0.13.2
+ARG ZSDK_VERSION=0.14.0
 ARG GCC_ARM_NAME=gcc-arm-none-eabi-10-2020-q4-major
 ARG CMAKE_VERSION=3.20.5
 ARG RENODE_VERSION=1.12.0
@@ -152,14 +152,20 @@ RUN wget ${WGET_ARGS} https://static.rust-lang.org/rustup/rustup-init.sh && \
 	cargo install uefi-run --root /usr && \
 	rm -f ./rustup-init.sh
 
-# Install Zephyr SDK as 'user' in order to ensure that the `Zephyr-sdk` CMake
-# package is located in the package registry under the user's home directory.
+# Install Zephyr SDK
+RUN cd /opt/toolchains && \
+	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.gz && \
+	tar xf zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.gz && \
+	zephyr-sdk-${ZSDK_VERSION}/setup.sh -c -t && \
+	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.gz
+
+# Run the Zephyr SDK setup script as 'user' in order to ensure that the
+# `Zephyr-sdk` CMake package is located in the package registry under the
+# user's home directory.
 USER user
 
-RUN sudo -E -- sh -c ' \
-	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run && \
-	sh "zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run" --quiet -- -d /opt/toolchains/zephyr-sdk-${ZSDK_VERSION} -y -norc && \
-	rm "zephyr-sdk-${ZSDK_VERSION}-linux-x86_64-setup.run" && \
+RUN sudo -E -- bash -c ' \
+	/opt/toolchains/zephyr-sdk-${ZSDK_VERSION}/setup.sh -c && \
 	chown -R user:user /home/user/.cmake \
 	'
 
