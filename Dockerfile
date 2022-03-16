@@ -11,6 +11,8 @@ ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll --no-check-certi
 ARG UID=1000
 ARG GID=1000
 
+SHELL ["/bin/bash", "-c"]
+
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN dpkg --add-architecture i386 && \
