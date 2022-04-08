@@ -42,11 +42,8 @@ docker.io/zephyrprojectrtos/zephyr-build:latest
 
 The environment is set and ready to go, no need to source zephyr-env.sh.
 
-We have two toolchains installed:
-- Zephyr SDK
-- GNU Arm Embedded Toolchain
-
-To switch, set ZEPHYR_TOOLCHAIN_VARIANT.
+The Zephyr SDK, which supports building most Zephyr targets, is included in
+both CI and Developer images.
 
 Further it is possible to run _native POSIX_ samples that require a display
 and check the display output via a VNC client. To allow the VNC client to
@@ -76,6 +73,3 @@ For example on a Ubuntu host system:
 ```
 vncviewer localhost:5900
 ```
-
-
-
