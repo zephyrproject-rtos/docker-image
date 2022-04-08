@@ -1,7 +1,6 @@
 FROM ubuntu:20.04
 
 ARG ZSDK_VERSION=0.14.0
-ARG GCC_ARM_NAME=gcc-arm-none-eabi-10-2020-q4-major
 ARG CMAKE_VERSION=3.20.5
 ARG RENODE_VERSION=1.12.0
 ARG LLVM_VERSION=12
@@ -112,10 +111,6 @@ RUN pip3 install wheel pip -U &&\
 
 RUN mkdir -p /opt/toolchains
 
-RUN wget ${WGET_ARGS} https://developer.arm.com/-/media/Files/downloads/gnu-rm/10-2020q4/${GCC_ARM_NAME}-x86_64-linux.tar.bz2  && \
-	tar -xf ${GCC_ARM_NAME}-x86_64-linux.tar.bz2 -C /opt/toolchains/ && \
-	rm -f ${GCC_ARM_NAME}-x86_64-linux.tar.bz2
-
 RUN wget ${WGET_ARGS} https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
 	chmod +x cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
 	./cmake-${CMAKE_VERSION}-Linux-x86_64.sh --skip-license --prefix=/usr/local && \
@@ -173,6 +168,5 @@ USER root
 
 # Set the locale
 ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
-ENV GNUARMEMB_TOOLCHAIN_PATH=/opt/toolchains/${GCC_ARM_NAME}
 ENV PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig
 ENV OVMF_FD_PATH=/usr/share/ovmf/OVMF.fd
