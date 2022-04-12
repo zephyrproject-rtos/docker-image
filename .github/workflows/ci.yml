@@ -29,19 +29,37 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Generate metadata for CI image
+    - name: Generate local metadata for CI image
       id: meta_ci
       uses: docker/metadata-action@v3
       with:
         images: |
           localhost:5000/zephyrproject-rtos/ci
 
-    - name: Generate metadata for Developer image
+    - name: Generate local metadata for Developer image
       id: meta_developer
       uses: docker/metadata-action@v3
       with:
         images: |
           localhost:5000/zephyrproject-rtos/zephyr-build
+
+    - name: Generate push metadata for CI image
+      if: ${{ github.event_name != 'pull_request' }}
+      id: meta_ci_push
+      uses: docker/metadata-action@v3
+      with:
+        images: |
+          docker.io/zephyrprojectrtos/ci
+          ghcr.io/zephyrproject-rtos/ci
+
+    - name: Generate push metadata for Developer image
+      if: ${{ github.event_name != 'pull_request' }}
+      id: meta_developer_push
+      uses: docker/metadata-action@v3
+      with:
+        images: |
+          docker.io/zephyrprojectrtos/zephyr-build
+          ghcr.io/zephyrproject-rtos/zephyr-build
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
@@ -94,15 +112,11 @@ jobs:
       uses: akhilerm/tag-push-action@v2.0.0
       with:
         src: localhost:5000/zephyrproject-rtos/ci:${{ steps.meta_ci.outputs.version }}
-        dst: |
-          docker.io/zephyrprojectrtos/ci:${{ steps.meta_ci.outputs.version }}
-          ghcr.io/zephyrproject-rtos/ci:${{ steps.meta_ci.outputs.version }}
+        dst: ${{ steps.meta_ci_push.outputs.tags }}
 
     - name: Push Developer docker image
       if: ${{ github.event_name != 'pull_request' }}
       uses: akhilerm/tag-push-action@v2.0.0
       with:
         src: localhost:5000/zephyrproject-rtos/zephyr-build:${{ steps.meta_developer.outputs.version }}
-        dst: |
-          docker.io/zephyrprojectrtos/zephyr-build:${{ steps.meta_developer.outputs.version }}
-          ghcr.io/zephyrproject-rtos/zephyr-build:${{ steps.meta_developer.outputs.version }}
+        dst: ${{ steps.meta_developer_push.outputs.tags }}
