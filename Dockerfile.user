@@ -1,39 +1,56 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE:-zephyrprojectrtos/ci:latest}
 
-RUN dpkg --add-architecture i386 && \
-        apt-get -y update && \
-        apt-get -y upgrade && \
-        apt-get install --no-install-recommends -y \
+# Install packages
+RUN apt-get -y update && \
+	apt-get -y upgrade && \
+	apt-get install --no-install-recommends -y \
 	openbox \
 	python-xdg \
 	libpython3.8-dev \
 	x11vnc \
 	xvfb \
 	xterm \
-	xz-utils && \
+	xz-utils
+
+# Clean up stale packages
+RUN apt-get clean -y && \
+	apt-get autoremove --purge -y && \
 	rm -rf /var/lib/apt/lists/*
 
+# Add entrypoint script
+ADD ./entrypoint.sh /home/user/entrypoint.sh
+RUN dos2unix /home/user/entrypoint.sh
+ENTRYPOINT ["/home/user/entrypoint.sh"]
+
+# Add bash completion script
+ADD ./bash_completion /home/user/.bash_completion
+RUN mkdir -p /home/user/.bash_completion.d
+
+# Switch to 'user' context
+USER user
+
+# Configure environment variables
 ENV DISPLAY=:0
 ENV ZEPHYR_BASE=/workdir/zephyr
 
-ADD ./entrypoint.sh /home/user/entrypoint.sh
-ADD ./bash_completion /home/user/.bash_completion
-RUN mkdir -p /home/user/.bash_completion.d
-RUN chown -R user:user /home/user
-
-RUN dos2unix /home/user/entrypoint.sh
-
-EXPOSE 5900
-
-ENTRYPOINT ["/home/user/entrypoint.sh"]
-CMD ["/bin/bash"]
-USER user
-
+# Set working directory
 WORKDIR /workdir
 VOLUME ["/workdir"]
 
-
+# Configure VNC authentication
 ARG VNCPASSWD=zephyr
 RUN mkdir ~/.vnc && x11vnc -storepasswd ${VNCPASSWD} ~/.vnc/passwd
 
+# Expose port 5900 for VNC
+EXPOSE 5900
+
+# Adjust 'user' home directory permissions
+USER root
+RUN chown -R user:user /home/user
+
+# Make 'user' default on launch
+USER user
+
+# Launch bash shell by default
+CMD ["/bin/bash"]
