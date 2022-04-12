@@ -1,74 +1,91 @@
 # Zephyr Docker Images
 
-We have 2 images:
+This repository contains the Dockerfiles for the following images:
 
-- CI Image: This is the image used in CI, we try to keep this self-contained.
-  The image only has the minimal set of software needed for CI operation.
-- Developer Image: Based on the base CI image, we provide additional tools that
-  can be used for development anywhere.
+- **CI Image (_ci_):** contains only the minimal set of software needed for CI operation.
+- **Developer Image (_zephyr-build_):** includes additional tools that can be useful for Zephyr
+  development.
 
 ## Developer Docker Image
 
-This docker image can be built with
+### Overview
+
+The Developer docker image includes all tools included in the CI image as well as the additional
+tools that can be useful for Zephyr development, such as the VNC server for testing display sample
+applications.
+
+These images include the [Zephyr SDK](https://github.com/zephyrproject-rtos/sdk-ng), which supports
+building most Zephyr targets.
+
+### Installation
+
+#### Using Pre-built Developer Docker Image
+
+The pre-built developer docker image is available on both GitHub Container Registry (`ghcr.io`) and
+DockerHub (`docker.io`).
+
+**GitHub Container Registry (`ghcr.io`)**
+
+```
+docker run -ti -v $HOME/Work/zephyrproject:/workdir \
+           ghcr.io/zephyrproject-rtos/zephyr-build:latest
+```
+
+**DockerHub (`docker.io`)**
+
+```
+docker run -ti -v $HOME/Work/zephyrproject:/workdir \
+           docker.io/zephyrprojectrtos/zephyr-build:latest
+```
+
+#### Building Developer Docker Image
+
+The developer docker image can be built using the following command:
 
 ```
 docker build -f Dockerfile.user --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t zephyr-build:v<tag> .
 ```
 
-and can be used for development and building zephyr samples and tests,
-for example:
+It can be used for building Zephyr samples and tests by mounting the Zephyr workspace into it:
 
 ```
 docker run -ti -v <path to zephyr workspace>:/workdir zephyr-build:v<tag>
 ```
 
-Then, follow the steps below to build a sample application:
+### Usage
+
+#### Building a sample application
+
+Follow the steps below to build and run a sample application:
 
 ```
-cd samples/hello_world
-mkdir build
-cd build
-cmake -DBOARD=qemu_x86 ..
-make run
+west build -b qemu_x86 samples/hello_world
+west build -t run
 ```
 
-The image is also available on docker.io, so you can skip the build step
-and directly pull from docker.io and build:
+#### Building display sample applications
 
-```
-docker run -ti -v $HOME/Work/zephyrproject:/workdir \
-docker.io/zephyrprojectrtos/zephyr-build:latest
-```
+It is possible to build and run the _native POSIX_ sample applications that produce display outputs
+by connecting to the Docker instance using a VNC client.
 
-The environment is set and ready to go, no need to source zephyr-env.sh.
-
-The Zephyr SDK, which supports building most Zephyr targets, is included in
-both CI and Developer images.
-
-Further it is possible to run _native POSIX_ samples that require a display
-and check the display output via a VNC client. To allow the VNC client to
-connect to the docker instance port 5900 needs to be forwarded to the host,
-for example:
+In order to allow the VNC client to connect to the Docker instance, the port 5900 needs to be
+forwarded to the host:
 
 ```
 docker run -ti -p 5900:5900 -v <path to zephyr workspace>:/workdir zephyr-build:v<tag>
 ```
 
-Then, follow the steps below to build a display sample application for the
-_native POSIX_ board:
+Follow the steps below to build a display sample application for the _native POSIX_ board:
 
 ```
-cd samples/display/cfb
-mkdir build
-cd build
-cmake -DBOARD=native_posix -GNinja ..
-ninja run
+west build -b native_posix samples/display/cfb
+west build -t run
 ```
 
-The result can be observed by connecting a VNC client to _localhost_ at port
-_5900_, the default VNC password is _zephyr_.
+The application display output can be observed by connecting a VNC client to _localhost_ at the
+port _5900_. The default VNC password is _zephyr_.
 
-For example on a Ubuntu host system:
+On a Ubuntu host, this can be done by running the following command:
 
 ```
 vncviewer localhost:5900
