@@ -40,8 +40,6 @@ RUN apt-get -y update && \
 		g++ \
 		gawk \
 		gcc \
-		gcc-multilib \
-		g++-multilib \
 		gcovr \
 		git \
 		git-core \
@@ -86,12 +84,21 @@ RUN apt-get -y update && \
 		ovmf \
 		xz-utils
 
-# Install i386 packages
-RUN dpkg --add-architecture i386 && \
+# Install multi-lib gcc (x86 only)
+RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
+	apt-get install --no-install-recommends -y \
+		gcc-multilib \
+		g++-multilib \
+	; fi
+
+# Install i386 packages (x86 only)
+RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
+	dpkg --add-architecture i386 && \
 	apt-get -y update && \
 	apt-get -y upgrade && \
 	apt-get install --no-install-recommends -y \
-		libsdl2-dev:i386
+		libsdl2-dev:i386 \
+	; fi
 
 # Initialise system locale
 RUN locale-gen en_US.UTF-8
@@ -100,18 +107,21 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 # Install CMake
-RUN wget ${WGET_ARGS} https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
-	chmod +x cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
-	./cmake-${CMAKE_VERSION}-Linux-x86_64.sh --skip-license --prefix=/usr/local && \
-	rm -f ./cmake-${CMAKE_VERSION}-Linux-x86_64.sh
+RUN wget ${WGET_ARGS} https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-${HOSTTYPE}.sh && \
+	chmod +x cmake-${CMAKE_VERSION}-Linux-${HOSTTYPE}.sh && \
+	./cmake-${CMAKE_VERSION}-Linux-${HOSTTYPE}.sh --skip-license --prefix=/usr/local && \
+	rm -f ./cmake-${CMAKE_VERSION}-Linux-${HOSTTYPE}.sh
 
-# Install renode
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF && \
+# Install renode (x86 only)
+# NOTE: Renode is currently only available for x86_64 host.
+RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
+	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF && \
 	echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main" | tee /etc/apt/sources.list.d/mono-official-stable.list && \
 	apt-get -y update && \
 	wget ${WGET_ARGS} https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb && \
 	apt-get install -y ./renode_${RENODE_VERSION}_amd64.deb && \
-	rm renode_${RENODE_VERSION}_amd64.deb
+	rm renode_${RENODE_VERSION}_amd64.deb \
+	; fi
 
 # Install Python dependencies
 RUN pip3 install wheel pip -U &&\
