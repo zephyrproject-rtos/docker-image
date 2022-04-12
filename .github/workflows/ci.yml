@@ -74,7 +74,7 @@ jobs:
       with:
         context: .
         file: Dockerfile
-        platforms: linux/amd64
+        platforms: linux/amd64,linux/arm64
         push: true
         tags: ${{ steps.meta_ci.outputs.tags }}
         labels: ${{ steps.meta_ci.outputs.labels }}
@@ -84,7 +84,7 @@ jobs:
       with:
         context: .
         file: Dockerfile.user
-        platforms: linux/amd64
+        platforms: linux/amd64,linux/arm64
         push: true
         tags: ${{ steps.meta_developer.outputs.tags }}
         labels: ${{ steps.meta_developer.outputs.labels }}
