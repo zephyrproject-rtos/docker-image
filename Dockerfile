@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-ARG ZSDK_VERSION=0.14.0
+ARG ZSDK_VERSION=0.14.1
 ARG CMAKE_VERSION=3.20.5
 ARG RENODE_VERSION=1.12.0
 ARG LLVM_VERSION=12
@@ -165,7 +165,7 @@ RUN mkdir -p /opt/toolchains && \
 	cd /opt/toolchains && \
 	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.gz && \
 	tar xf zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.gz && \
-	zephyr-sdk-${ZSDK_VERSION}/setup.sh -c -t && \
+	zephyr-sdk-${ZSDK_VERSION}/setup.sh -t all -h -c && \
 	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.gz
 
 # Clean up stale packages
