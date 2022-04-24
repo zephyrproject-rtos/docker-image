@@ -14,7 +14,7 @@ ARG GID=1000
 SHELL ["/bin/bash", "-c"]
 
 # Set non-interactive frontend for apt-get to skip any user confirmations
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install base packages
 RUN apt-get -y update && \
@@ -102,9 +102,9 @@ RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 
 # Initialise system locale
 RUN locale-gen en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 # Install CMake
 RUN wget ${WGET_ARGS} https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-${HOSTTYPE}.sh && \
