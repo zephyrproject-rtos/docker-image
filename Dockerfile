@@ -1,6 +1,7 @@
 FROM ubuntu:20.04
 
 ARG ZSDK_VERSION=0.14.1
+ARG DOXYGEN_VERSION=1.9.4
 ARG CMAKE_VERSION=3.20.5
 ARG RENODE_VERSION=1.12.0
 ARG LLVM_VERSION=12
@@ -105,6 +106,14 @@ RUN locale-gen en_US.UTF-8
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
+
+# Install Doxygen (x86 only)
+# NOTE: Pre-built Doxygen binaries are only available for x86_64 host.
+RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
+	wget ${WGET_ARGS} https://downloads.sourceforge.net/project/doxygen/rel-${DOXYGEN_VERSION}/doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz && \
+	tar xf doxygen-1.9.4.linux.bin.tar.gz -C /opt && \
+	ln -s /opt/doxygen-1.9.4/bin/doxygen /usr/local/bin \
+	; fi
 
 # Install CMake
 RUN wget ${WGET_ARGS} https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-${HOSTTYPE}.sh && \
