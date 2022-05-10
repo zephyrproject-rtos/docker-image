@@ -111,8 +111,9 @@ ENV LC_ALL=en_US.UTF-8
 # NOTE: Pre-built Doxygen binaries are only available for x86_64 host.
 RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 	wget ${WGET_ARGS} https://downloads.sourceforge.net/project/doxygen/rel-${DOXYGEN_VERSION}/doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz && \
-	tar xf doxygen-1.9.4.linux.bin.tar.gz -C /opt && \
-	ln -s /opt/doxygen-1.9.4/bin/doxygen /usr/local/bin \
+	tar xf doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz -C /opt && \
+	ln -s /opt/doxygen-${DOXYGEN_VERSION}/bin/doxygen /usr/local/bin && \
+	rm doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz \
 	; fi
 
 # Install CMake
