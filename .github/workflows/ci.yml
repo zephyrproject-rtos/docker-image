@@ -2,10 +2,10 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     tags: [ 'v*' ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 permissions:
   packages: write
@@ -26,42 +26,15 @@ jobs:
         - 5000:5000
 
     steps:
-    - name: Free up disk space
-      run: |
-        set -x
-
-        # Delete unnecessary files to free up space
-        df -h
-        sudo rm -rf "/usr/local/share/boost"
-        sudo rm -rf "/usr/local/lib/android"
-        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-        df -h
-
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Generate local metadata for CI image
-      id: meta_ci
-      uses: docker/metadata-action@v3
-      with:
-        images: |
-          localhost:5000/zephyrproject-rtos/ci
-
-    - name: Generate local metadata for Developer image
+    - name: Generate local metadata for Docker image
       id: meta_developer
       uses: docker/metadata-action@v3
       with:
         images: |
-          localhost:5000/zephyrproject-rtos/zephyr-build
-
-    - name: Generate push metadata for CI image
-      if: ${{ github.event_name != 'pull_request' }}
-      id: meta_ci_push
-      uses: docker/metadata-action@v3
-      with:
-        images: |
-          docker.io/zephyrprojectrtos/ci
-          ghcr.io/zephyrproject-rtos/ci
+          localhost:5000/waltmoorhouse/zephyr-build
 
     - name: Generate push metadata for Developer image
       if: ${{ github.event_name != 'pull_request' }}
@@ -69,8 +42,7 @@ jobs:
       uses: docker/metadata-action@v3
       with:
         images: |
-          docker.io/zephyrprojectrtos/zephyr-build
-          ghcr.io/zephyrproject-rtos/zephyr-build
+          docker.io/waltmoorhouse/zephyr-build
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
@@ -80,27 +52,15 @@ jobs:
       with:
         driver-opts: network=host
 
-    - name: Build CI docker image
+    - name: Build Developer docker image
       uses: docker/build-push-action@v2
       with:
         context: .
         file: Dockerfile
         platforms: linux/amd64,linux/arm64
         push: true
-        tags: ${{ steps.meta_ci.outputs.tags }}
-        labels: ${{ steps.meta_ci.outputs.labels }}
-
-    - name: Build Developer docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        file: Dockerfile.user
-        platforms: linux/amd64,linux/arm64
-        push: true
         tags: ${{ steps.meta_developer.outputs.tags }}
         labels: ${{ steps.meta_developer.outputs.labels }}
-        build-args: |
-          BASE_IMAGE=localhost:5000/zephyrproject-rtos/ci:${{ steps.meta_ci.outputs.version }}
 
     - name: Login to DockerHub
       if: ${{ github.event_name != 'pull_request' }}
@@ -110,24 +70,9 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Login to GitHub Container Registry
-      if: ${{ github.event_name != 'pull_request' }}
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Push CI docker image
-      if: ${{ github.event_name != 'pull_request' }}
-      uses: akhilerm/tag-push-action@v2.0.0
-      with:
-        src: localhost:5000/zephyrproject-rtos/ci:${{ steps.meta_ci.outputs.version }}
-        dst: ${{ steps.meta_ci_push.outputs.tags }}
-
     - name: Push Developer docker image
       if: ${{ github.event_name != 'pull_request' }}
       uses: akhilerm/tag-push-action@v2.0.0
       with:
-        src: localhost:5000/zephyrproject-rtos/zephyr-build:${{ steps.meta_developer.outputs.version }}
+        src: localhost:5000/waltmoorhouse/zephyr-build:${{ steps.meta_developer.outputs.version }}
         dst: ${{ steps.meta_developer_push.outputs.tags }}
