@@ -20,7 +20,7 @@ jobs:
 
     steps:
     - name: Setup Docker
-      run: snap install docker
+      run: sudo snap install docker
 
     - name: Checkout
       uses: actions/checkout@v2
