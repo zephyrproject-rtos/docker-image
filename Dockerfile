@@ -181,13 +181,6 @@ RUN mkdir -p /opt/toolchains && \
 	zephyr-sdk-${ZSDK_VERSION}/setup.sh -t all -h -c && \
 	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.gz
 
-## Install Nordic SDK
-#RUN wget --no-check-certificate -q -O - https://apt.kitware.com/kitware-archive.sh | bash
-#RUN apt-get install --no-install-recommends git cmake ninja-build gperf \
-#      ccache dfu-util device-tree-compiler wget \
-#      python3-dev python3-pip python3-setuptools python3-tk python3-wheel xz-utils file \
-#      make gcc gcc-multilib g++-multilib libsdl2-dev
-
 # Clean up stale packages
 RUN apt-get clean -y && \
 	apt-get autoremove --purge -y && \
