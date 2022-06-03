@@ -7,9 +7,6 @@ on:
   pull_request:
     branches: [ main ]
 
-permissions:
-  packages: write
-
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
@@ -18,49 +15,19 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-20.04
-
-    services:
-      registry:
-        image: registry:2
-        ports:
-        - 5000:5000
+    env:
+      DOCKER_IMAGE: docker.io/waltmoorhouse/zephyr-build
 
     steps:
+    - name: Setup Docker
+      run: snap install docker
+
     - name: Checkout
       uses: actions/checkout@v2
 
-    - name: Generate local metadata for Docker image
-      id: meta_developer
-      uses: docker/metadata-action@v3
-      with:
-        images: |
-          localhost:5000/waltmoorhouse/zephyr-build
-
-    - name: Generate push metadata for Developer image
-      if: ${{ github.event_name != 'pull_request' }}
-      id: meta_developer_push
-      uses: docker/metadata-action@v3
-      with:
-        images: |
-          docker.io/waltmoorhouse/zephyr-build
-
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-      with:
-        driver-opts: network=host
-
-    - name: Build Developer docker image
-      uses: docker/build-push-action@v2
-      with:
-        context: .
-        file: Dockerfile
-        platforms: linux/amd64,linux/arm64
-        push: true
-        tags: ${{ steps.meta_developer.outputs.tags }}
-        labels: ${{ steps.meta_developer.outputs.labels }}
+    - name: Test Build Docker
+      if: ${{ github.event_name == 'pull_request' }}
+      run: docker build -t ${{ env.DOCKER_IMAGE }} .
 
     - name: Login to DockerHub
       if: ${{ github.event_name != 'pull_request' }}
@@ -72,7 +39,6 @@ jobs:
 
     - name: Push Developer docker image
       if: ${{ github.event_name != 'pull_request' }}
-      uses: akhilerm/tag-push-action@v2.0.0
-      with:
-        src: localhost:5000/waltmoorhouse/zephyr-build:${{ steps.meta_developer.outputs.version }}
-        dst: ${{ steps.meta_developer_push.outputs.tags }}
+      run: |
+        docker build -t ${{ env.DOCKER_IMAGE }}:${{ github.GITHUB_REF_NAME }} .
+        docker push ${{ env.DOCKER_IMAGE }}:${{ github.GITHUB_REF_NAME }}
