@@ -1,6 +1,7 @@
 FROM ubuntu:20.04
 
-ARG ZSDK_VERSION=0.14.2
+ARG ZSDK_VERSION=0.14.1
+ARG NRF_CONNECT_SDK_VERSION=v1.9.1
 ARG DOXYGEN_VERSION=1.9.4
 ARG CMAKE_VERSION=3.20.5
 ARG RENODE_VERSION=1.13.0
@@ -31,6 +32,7 @@ RUN apt-get -y update && \
 		ccache \
 		chrpath \
 		cpio \
+    curl \
 		device-tree-compiler \
 		dfu-util \
 		diffstat \
@@ -50,6 +52,7 @@ RUN apt-get -y update && \
 		help2man \
 		iproute2 \
 		lcov \
+    libcurl4-openssl-dev \
 		libglib2.0-dev \
 		libgtk2.0-0 \
 		liblocale-gettext-perl \
@@ -190,19 +193,41 @@ RUN useradd -u $UID -m -g user -G plugdev user \
 	&& echo 'user ALL = NOPASSWD: ALL' > /etc/sudoers.d/user \
 	&& chmod 0440 /etc/sudoers.d/user
 
+# Create Entrypoint
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod 755 /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
 # Run the Zephyr SDK setup script as 'user' in order to ensure that the
 # `Zephyr-sdk` CMake package is located in the package registry under the
 # user's home directory.
 USER user
+
+# Install GN (for Matter apps)
+RUN mkdir ${HOME}/gn && \
+    cd ${HOME}/gn && \
+    wget ${WGET_ARGS} -O gn.zip https://chrome-infra-packages.appspot.com/dl/gn/gn/linux-amd64/+/latest && \
+    unzip gn.zip && \
+    rm gn.zip && \
+    echo 'export PATH=${HOME}/gn:"$PATH"' >> ${HOME}/.bashrc && \
+    source ${HOME}/.bashrc
+
+# Setup nRF Connect SDK
+RUN mkdir ${HOME}/ncs && \
+    cd ${HOME}/ncs && \
+    west init -m https://github.com/nrfconnect/sdk-nrf --mr ${NRF_CONNECT_SDK_VERSION} && \
+    west update && \
+    west zephyr-export && \
+    pip3 install --user -r zephyr/scripts/requirements.txt && \
+    pip3 install --user -r nrf/scripts/requirements.txt && \
+    pip3 install --user -r bootloader/mcuboot/scripts/requirements.txt
 
 RUN sudo -E -- bash -c ' \
 	/opt/toolchains/zephyr-sdk-${ZSDK_VERSION}/setup.sh -c && \
 	chown -R user:user /home/user/.cmake \
 	'
 
-USER root
+RUN echo "source /opt/toolchains/zephyr-sdk-0.14.1/environment-setup-x86_64-pokysdk-linux" >> /home/user/.bashrc
+RUN echo "source ~/ncs/zephyr/zephyr-env.sh" >> /home/user/.bashrc
 
-# Set the locale
-ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
-ENV PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig
-ENV OVMF_FD_PATH=/usr/share/ovmf/OVMF.fd
+WORKDIR /workdir
