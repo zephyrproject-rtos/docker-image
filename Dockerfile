@@ -6,6 +6,7 @@ ARG CMAKE_VERSION=3.20.5
 ARG RENODE_VERSION=1.13.0
 ARG LLVM_VERSION=12
 ARG BSIM_VERSION=v1.0.3
+ARG SPARSE_VERSION=9212270048c3bd23f56c20a83d4f89b870b2b26e
 ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll --no-check-certificate"
 
 ARG UID=1000
@@ -169,6 +170,15 @@ RUN wget ${WGET_ARGS} https://static.rust-lang.org/rustup/rustup-init.sh && \
 RUN wget ${WGET_ARGS} -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
 	apt-get update && \
 	apt-get install -y clang-$LLVM_VERSION lldb-$LLVM_VERSION lld-$LLVM_VERSION clangd-$LLVM_VERSION llvm-$LLVM_VERSION-dev
+
+# Install sparse package for static analysis
+RUN mkdir -p /opt/sparse && \
+	cd /opt/sparse && \
+	git clone https://git.kernel.org/pub/scm/devel/sparse/sparse.git && \
+	cd sparse && git checkout ${SPARSE_VERSION} && \
+	make -j8 && \
+	PREFIX=/opt/sparse make install && \
+	rm -rf /opt/sparse/sparse
 
 # Install Zephyr SDK
 RUN mkdir -p /opt/toolchains && \
