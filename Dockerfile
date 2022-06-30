@@ -83,7 +83,8 @@ RUN apt-get -y update && \
 		valgrind \
 		wget \
 		ovmf \
-		xz-utils
+		xz-utils \
+		sparse
 
 # Install multi-lib gcc (x86 only)
 RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
