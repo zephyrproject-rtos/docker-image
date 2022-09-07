@@ -167,9 +167,10 @@ RUN wget ${WGET_ARGS} https://static.rust-lang.org/rustup/rustup-init.sh && \
 	rm -f ./rustup-init.sh
 
 # Install LLVM and Clang
-RUN wget ${WGET_ARGS} -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-	apt-get update && \
-	apt-get install -y clang-$LLVM_VERSION lldb-$LLVM_VERSION lld-$LLVM_VERSION clangd-$LLVM_VERSION llvm-$LLVM_VERSION-dev
+RUN wget ${WGET_ARGS} https://apt.llvm.org/llvm.sh && \
+	chmod +x llvm.sh && \
+	./llvm.sh ${LLVM_VERSION} all && \
+	rm -f llvm.sh
 
 # Install sparse package for static analysis
 RUN mkdir -p /opt/sparse && \
