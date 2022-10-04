@@ -31,17 +31,6 @@ jobs:
         - 5000:5000
 
     steps:
-    - name: Free up disk space
-      run: |
-        set -x
-
-        # Delete unnecessary files to free up space
-        df -h
-        sudo rm -rf "/usr/local/share/boost"
-        sudo rm -rf "/usr/local/lib/android"
-        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-        df -h
-
     - name: Checkout
       uses: actions/checkout@v2
 
