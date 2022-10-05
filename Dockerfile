@@ -7,6 +7,7 @@ ARG RENODE_VERSION=1.13.2
 ARG LLVM_VERSION=15
 ARG BSIM_VERSION=v1.0.3
 ARG SPARSE_VERSION=9212270048c3bd23f56c20a83d4f89b870b2b26e
+ARG PROTOC_VERSION=21.7
 ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll --no-check-certificate"
 
 ARG UID=1000
@@ -68,7 +69,6 @@ RUN apt-get -y update && \
 		ninja-build \
 		openssh-client \
 		pkg-config \
-		protobuf-compiler \
 		python3-dev \
 		python3-pip \
 		python3-ply \
@@ -180,6 +180,15 @@ RUN mkdir -p /opt/sparse && \
 	make -j8 && \
 	PREFIX=/opt/sparse make install && \
 	rm -rf /opt/sparse/sparse
+
+# Install protobuf-compiler
+RUN mkdir -p /opt/protoc && \
+	cd /opt/protoc && \
+	PROTOC_HOSTTYPE=$(case $HOSTTYPE in x86_64) echo "x86_64";; aarch64) echo "aarch_64";; esac) && \
+	wget ${WGET_ARGS} https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-${PROTOC_HOSTTYPE}.zip && \
+	unzip protoc-${PROTOC_VERSION}-linux-${PROTOC_HOSTTYPE}.zip && \
+	ln -s /opt/protoc/bin/protoc /usr/local/bin && \
+	rm -f protoc-${PROTOC_VERSION}-linux-${PROTOC_HOSTTYPE}.zip
 
 # Install Zephyr SDK
 RUN mkdir -p /opt/toolchains && \
