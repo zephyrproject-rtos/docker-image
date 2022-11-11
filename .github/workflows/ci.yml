@@ -22,7 +22,7 @@ concurrency:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-20.04-4c
+    runs-on: zephyr-runner-linux-x64-xlarge
 
     services:
       registry:
