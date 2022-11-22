@@ -21,8 +21,19 @@ concurrency:
 
 jobs:
   build:
-    name: Build
-    runs-on: zephyr-runner-linux-x64-xlarge
+    name: Build (${{ matrix.variant.platform }})
+    runs-on: ${{ matrix.variant.builder }}
+
+    strategy:
+      fail-fast: true
+      matrix:
+        variant:
+        - platform: linux/amd64
+          arch: amd64
+          builder: zephyr-runner-linux-x64-xlarge
+        - platform: linux/arm64
+          arch: arm64
+          builder: zephyr-runner-linux-arm64-xlarge
 
     services:
       registry:
@@ -58,6 +69,7 @@ jobs:
           ghcr.io/zephyrproject-rtos/ci
         flavor: |
           latest=false
+          suffix=-${{ matrix.variant.arch }}
         tags: |
           type=ref,event=branch
           type=ref,event=tag
@@ -73,13 +85,11 @@ jobs:
           ghcr.io/zephyrproject-rtos/zephyr-build
         flavor: |
           latest=false
+          suffix=-${{ matrix.variant.arch }}
         tags: |
           type=ref,event=branch
           type=ref,event=tag
           type=raw,value=latest,enable={{is_default_branch}}
-
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
@@ -91,7 +101,7 @@ jobs:
       with:
         context: .
         file: Dockerfile
-        platforms: linux/amd64,linux/arm64
+        platforms: ${{ matrix.variant.platform }}
         push: true
         tags: ${{ steps.meta_ci.outputs.tags }}
         labels: ${{ steps.meta_ci.outputs.labels }}
@@ -101,7 +111,7 @@ jobs:
       with:
         context: .
         file: Dockerfile.user
-        platforms: linux/amd64,linux/arm64
+        platforms: ${{ matrix.variant.platform }}
         push: true
         tags: ${{ steps.meta_developer.outputs.tags }}
         labels: ${{ steps.meta_developer.outputs.labels }}
