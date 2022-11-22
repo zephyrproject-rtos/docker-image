@@ -21,8 +21,19 @@ concurrency:
 
 jobs:
   build:
-    name: Build
-    runs-on: zephyr-runner-linux-x64-xlarge
+    name: Build (${{ matrix.variant.platform }})
+    runs-on: ${{ matrix.variant.builder }}
+
+    strategy:
+      fail-fast: true
+      matrix:
+        variant:
+        - platform: linux/amd64
+          arch: amd64
+          builder: zephyr-runner-linux-x64-xlarge
+        - platform: linux/arm64
+          arch: arm64
+          builder: zephyr-runner-linux-arm64-xlarge
 
     services:
       registry:
@@ -58,10 +69,10 @@ jobs:
           ghcr.io/zephyrproject-rtos/ci
         flavor: |
           latest=false
+          suffix=-${{ matrix.variant.arch }}
         tags: |
           type=ref,event=branch
           type=ref,event=tag
-          type=raw,value=latest,enable={{is_default_branch}}
 
     - name: Generate push metadata for Developer image
       if: ${{ github.event_name != 'pull_request' }}
@@ -73,13 +84,10 @@ jobs:
           ghcr.io/zephyrproject-rtos/zephyr-build
         flavor: |
           latest=false
+          suffix=-${{ matrix.variant.arch }}
         tags: |
           type=ref,event=branch
           type=ref,event=tag
-          type=raw,value=latest,enable={{is_default_branch}}
-
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
@@ -91,7 +99,7 @@ jobs:
       with:
         context: .
         file: Dockerfile
-        platforms: linux/amd64,linux/arm64
+        platforms: ${{ matrix.variant.platform }}
         push: true
         tags: ${{ steps.meta_ci.outputs.tags }}
         labels: ${{ steps.meta_ci.outputs.labels }}
@@ -101,7 +109,7 @@ jobs:
       with:
         context: .
         file: Dockerfile.user
-        platforms: linux/amd64,linux/arm64
+        platforms: ${{ matrix.variant.platform }}
         push: true
         tags: ${{ steps.meta_developer.outputs.tags }}
         labels: ${{ steps.meta_developer.outputs.labels }}
@@ -126,14 +134,99 @@ jobs:
 
     - name: Push CI docker image
       if: ${{ github.event_name != 'pull_request' }}
-      uses: akhilerm/tag-push-action@v2.0.0
+      uses: stephanosio/tag-push-action@v2.1.0
       with:
         src: localhost:5000/zephyrproject-rtos/ci:${{ steps.meta_ci.outputs.version }}
         dst: ${{ steps.meta_ci_push.outputs.tags }}
 
     - name: Push Developer docker image
       if: ${{ github.event_name != 'pull_request' }}
-      uses: akhilerm/tag-push-action@v2.0.0
+      uses: stephanosio/tag-push-action@v2.1.0
       with:
         src: localhost:5000/zephyrproject-rtos/zephyr-build:${{ steps.meta_developer.outputs.version }}
+        dst: ${{ steps.meta_developer_push.outputs.tags }}
+
+  merge:
+    name: Merge
+    runs-on: zephyr-runner-linux-x64-xlarge
+    needs: build
+    if: ${{ github.event_name != 'pull_request' }}
+
+    steps:
+    - name: Login to DockerHub
+      uses: docker/login-action@v1
+      with:
+        registry: docker.io
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Generate push metadata for CI image
+      id: meta_ci_push
+      uses: docker/metadata-action@v3
+      with:
+        images: |
+          docker.io/zephyrprojectrtos/ci
+          ghcr.io/zephyrproject-rtos/ci
+        flavor: |
+          latest=false
+        tags: |
+          type=ref,event=branch
+          type=ref,event=tag
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Generate push metadata for Developer image
+      id: meta_developer_push
+      uses: docker/metadata-action@v3
+      with:
+        images: |
+          docker.io/zephyrprojectrtos/zephyr-build
+          ghcr.io/zephyrproject-rtos/zephyr-build
+        flavor: |
+          latest=false
+        tags: |
+          type=ref,event=branch
+          type=ref,event=tag
+          type=raw,value=latest,enable={{is_default_branch}}
+
+    - name: Create multi-architecture image
+      run: |
+        archs=(amd64 arm64)
+        ci_image="ghcr.io/zephyrproject-rtos/ci:${{ steps.meta_ci_push.outputs.version }}"
+        developer_image="ghcr.io/zephyrproject-rtos/zephyr-build:${{ steps.meta_developer_push.outputs.version }}"
+
+        # Pull architecture-specific images
+        for arch in ${archs[@]}; do
+          docker pull ${ci_image}-${arch}
+          docker pull ${developer_image}-${arch}
+        done
+
+        # Create multi-architecture image
+        for arch in ${archs[@]}; do
+          ci_image_amend_flags+="--amend ${ci_image}-${arch} "
+          developer_image_amend_flags+="--amend ${developer_image}-${arch} "
+        done
+
+        docker manifest create ${ci_image} ${ci_image_amend_flags}
+        docker manifest create ${developer_image} ${developer_image_amend_flags}
+
+        docker manifest push ${ci_image}
+        docker manifest push ${developer_image}
+
+    - name: Push CI docker image
+      uses: stephanosio/tag-push-action@v2.1.0
+      with:
+        src: ghcr.io/zephyrproject-rtos/ci:${{ steps.meta_ci_push.outputs.version }}
+        dst: ${{ steps.meta_ci_push.outputs.tags }}
+
+    - name: Push Developer docker image
+      uses: stephanosio/tag-push-action@v2.1.0
+      with:
+        src: ghcr.io/zephyrproject-rtos/zephyr-build:${{ steps.meta_developer_push.outputs.version }}
         dst: ${{ steps.meta_developer_push.outputs.tags }}
