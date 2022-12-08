@@ -45,6 +45,13 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
 
+    - name: Generate local metadata for base image
+      id: meta_ci_base
+      uses: docker/metadata-action@v4
+      with:
+        images: |
+          localhost:5000/zephyrproject-rtos/ci-base
+
     - name: Generate local metadata for CI image
       id: meta_ci
       uses: docker/metadata-action@v4
@@ -58,6 +65,21 @@ jobs:
       with:
         images: |
           localhost:5000/zephyrproject-rtos/zephyr-build
+
+    - name: Generate push metadata for base image
+      if: ${{ github.event_name != 'pull_request' }}
+      id: meta_ci_base_push
+      uses: docker/metadata-action@v4
+      with:
+        images: |
+          docker.io/zephyrprojectrtos/ci-base
+          ghcr.io/zephyrproject-rtos/ci-base
+        flavor: |
+          latest=false
+          suffix=-${{ matrix.variant.arch }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=tag
 
     - name: Generate push metadata for CI image
       if: ${{ github.event_name != 'pull_request' }}
@@ -94,15 +116,27 @@ jobs:
       with:
         driver-opts: network=host
 
+    - name: Build base docker image
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        file: Dockerfile.base
+        platforms: ${{ matrix.variant.platform }}
+        push: true
+        tags: ${{ steps.meta_ci_base.outputs.tags }}
+        labels: ${{ steps.meta_ci_base.outputs.labels }}
+
     - name: Build CI docker image
       uses: docker/build-push-action@v3
       with:
         context: .
-        file: Dockerfile
+        file: Dockerfile.ci
         platforms: ${{ matrix.variant.platform }}
         push: true
         tags: ${{ steps.meta_ci.outputs.tags }}
         labels: ${{ steps.meta_ci.outputs.labels }}
+        build-args: |
+          BASE_IMAGE=localhost:5000/zephyrproject-rtos/ci-base:${{ steps.meta_ci_base.outputs.version }}
 
     - name: Build Developer docker image
       uses: docker/build-push-action@v3
@@ -131,6 +165,13 @@ jobs:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Push base docker image
+      if: ${{ github.event_name != 'pull_request' }}
+      uses: stephanosio/tag-push-action@v2.1.0
+      with:
+        src: localhost:5000/zephyrproject-rtos/ci-base:${{ steps.meta_ci_base.outputs.version }}
+        dst: ${{ steps.meta_ci_base_push.outputs.tags }}
 
     - name: Push CI docker image
       if: ${{ github.event_name != 'pull_request' }}
@@ -167,6 +208,20 @@ jobs:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Generate push metadata for base docker image
+      id: meta_ci_base_push
+      uses: docker/metadata-action@v4
+      with:
+        images: |
+          docker.io/zephyrprojectrtos/ci-base
+          ghcr.io/zephyrproject-rtos/ci-base
+        flavor: |
+          latest=false
+        tags: |
+          type=ref,event=branch
+          type=ref,event=tag
+          type=raw,value=latest,enable={{is_default_branch}}
+
     - name: Generate push metadata for CI image
       id: meta_ci_push
       uses: docker/metadata-action@v4
@@ -198,26 +253,37 @@ jobs:
     - name: Create multi-architecture image
       run: |
         archs=(amd64 arm64)
+        ci_base_image="ghcr.io/zephyrproject-rtos/ci-base:${{ steps.meta_ci_base_push.outputs.version }}"
         ci_image="ghcr.io/zephyrproject-rtos/ci:${{ steps.meta_ci_push.outputs.version }}"
         developer_image="ghcr.io/zephyrproject-rtos/zephyr-build:${{ steps.meta_developer_push.outputs.version }}"
 
         # Pull architecture-specific images
         for arch in ${archs[@]}; do
+          docker pull ${ci_base_image}-${arch}
           docker pull ${ci_image}-${arch}
           docker pull ${developer_image}-${arch}
         done
 
         # Create multi-architecture image
         for arch in ${archs[@]}; do
+          ci_base_image_amend_flags+="--amend ${ci_base_image}-${arch} "
           ci_image_amend_flags+="--amend ${ci_image}-${arch} "
           developer_image_amend_flags+="--amend ${developer_image}-${arch} "
         done
 
+        docker manifest create ${ci_base_image} ${ci_base_image_amend_flags}
         docker manifest create ${ci_image} ${ci_image_amend_flags}
         docker manifest create ${developer_image} ${developer_image_amend_flags}
 
+        docker manifest push ${ci_base_image}
         docker manifest push ${ci_image}
         docker manifest push ${developer_image}
+
+    - name: Push base docker image
+      uses: stephanosio/tag-push-action@v2.1.0
+      with:
+        src: ghcr.io/zephyrproject-rtos/ci-base:${{ steps.meta_ci_base_push.outputs.version }}
+        dst: ${{ steps.meta_ci_base_push.outputs.tags }}
 
     - name: Push CI docker image
       uses: stephanosio/tag-push-action@v2.1.0
