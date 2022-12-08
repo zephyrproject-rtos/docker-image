@@ -2,7 +2,8 @@
 
 This repository contains the Dockerfiles for the following images:
 
-- **CI Image (_ci_):** contains only the minimal set of software needed for CI operation.
+- **Base Image (_ci_base_):** contains only the minimal set of software needed for basic development without the toolchains.
+- **CI Image (_ci_):** contains toolchains, the zephyr sdk and additional packages needed for ci operations.
 - **Developer Image (_zephyr-build_):** includes additional tools that can be useful for Zephyr
   development.
 
@@ -13,6 +14,8 @@ This repository contains the Dockerfiles for the following images:
 The Developer docker image includes all tools included in the CI image as well as the additional
 tools that can be useful for Zephyr development, such as the VNC server for testing display sample
 applications.
+
+The Base docker images should be used to build custom docker images with 3rd party toolchains and tooling.
 
 These images include the [Zephyr SDK](https://github.com/zephyrproject-rtos/sdk-ng), which supports
 building most Zephyr targets.
