@@ -108,16 +108,13 @@ RUN wget ${WGET_ARGS} https://github.com/Kitware/CMake/releases/download/v${CMAK
 	rm -f ./cmake-${CMAKE_VERSION}-Linux-${HOSTTYPE}.sh
 
 # Install Python dependencies
-RUN pip3 install wheel pip -U &&\
-	pip3 install -r https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/master/scripts/requirements.txt && \
-	pip3 install -r https://raw.githubusercontent.com/zephyrproject-rtos/mcuboot/master/scripts/requirements.txt && \
-	pip3 install west &&\
-	pip3 install sh &&\
-	pip3 install awscli PyGithub junitparser pylint \
-		     statistics numpy \
-		     imgtool \
-		     protobuf \
-		     GitPython
+RUN python3 -m pip install -U pip && \
+	pip3 install -U wheel setuptools && \
+	pip3 install \
+		-r https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/master/scripts/requirements.txt \
+		-r https://raw.githubusercontent.com/zephyrproject-rtos/mcuboot/master/scripts/requirements.txt \
+		awscli GitPython imgtool junitparser numpy protobuf PyGithub \
+		pylint sh statistics west
 
 # Clean up stale packages
 RUN apt-get clean -y && \
