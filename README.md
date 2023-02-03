@@ -81,7 +81,7 @@ docker run -ti -p 5900:5900 -v <path to zephyr workspace>:/workdir zephyr-build:
 Follow the steps below to build a display sample application for the _native POSIX_ board:
 
 ```
-west build -b native_posix samples/display/cfb
+west build -b native_posix samples/subsys/display/cfb
 west build -t run
 ```
 
