@@ -2,7 +2,7 @@
 
 This repository contains the Dockerfiles for the following images:
 
-- **Base Image (_ci_base_):** contains only the minimal set of software needed for basic development without the toolchains.
+- **Base Image (_ci-base_):** contains only the minimal set of software needed for basic development without the toolchains.
 - **CI Image (_ci_):** contains toolchains, the zephyr sdk and additional packages needed for ci operations.
 - **Developer Image (_zephyr-build_):** includes additional tools that can be useful for Zephyr
   development.
