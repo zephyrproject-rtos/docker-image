@@ -46,7 +46,7 @@ docker run -ti -v $HOME/Work/zephyrproject:/workdir \
 The developer docker image can be built using the following command:
 
 ```
-docker build -f Dockerfile.user --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t zephyr-build:v<tag> .
+docker build -f Dockerfile.devel --build-arg UID=$(id -u) --build-arg GID=$(id -g) -t zephyr-build:v<tag> .
 ```
 
 It can be used for building Zephyr samples and tests by mounting the Zephyr workspace into it:
