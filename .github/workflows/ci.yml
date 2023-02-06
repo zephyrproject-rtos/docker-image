@@ -142,7 +142,7 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         context: .
-        file: Dockerfile.user
+        file: Dockerfile.devel
         platforms: ${{ matrix.variant.platform }}
         push: true
         tags: ${{ steps.meta_developer.outputs.tags }}
