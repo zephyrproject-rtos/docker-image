@@ -1,3 +1,5 @@
+# CI Image (ci)
+
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE:-zephyrprojectrtos/ci-base:latest}
 
