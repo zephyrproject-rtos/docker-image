@@ -30,6 +30,7 @@ jobs:
       run: docker build -t ${{ env.DOCKER_IMAGE }} .
 
     - id: latest-tag
+      if: ${{ github.event_name != 'pull_request' }}
       uses: KrogerWalt/action-get-latest-tag@v3
 
     - name: Login to DockerHub
