@@ -8,8 +8,8 @@ RUN apt-get -y update && \
 	apt-get -y upgrade && \
 	apt-get install --no-install-recommends -y \
 	openbox \
-	python-xdg \
-	libpython3.8-dev \
+	python3-xdg \
+	libpython3-dev \
 	x11vnc \
 	xvfb \
 	xterm \
