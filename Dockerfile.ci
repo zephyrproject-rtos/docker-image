@@ -5,13 +5,12 @@ FROM ${BASE_IMAGE:-zephyrprojectrtos/ci-base:latest}
 
 ARG ZSDK_VERSION=0.16.0
 ARG DOXYGEN_VERSION=1.9.4
-ARG CMAKE_VERSION=3.20.5
 ARG RENODE_VERSION=1.13.3
 ARG LLVM_VERSION=15
 ARG BSIM_VERSION=v2.0.1
 ARG SPARSE_VERSION=9212270048c3bd23f56c20a83d4f89b870b2b26e
 ARG PROTOC_VERSION=21.7
-ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll --no-check-certificate"
+ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll"
 
 
 # Install Doxygen (x86 only)
@@ -28,11 +27,12 @@ RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 # NOTE: Renode is currently only available for x86_64 host.
 RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF && \
-	echo "deb https://download.mono-project.com/repo/ubuntu stable-bionic main" | tee /etc/apt/sources.list.d/mono-official-stable.list && \
+	echo "deb https://download.mono-project.com/repo/ubuntu stable-focal main" | tee /etc/apt/sources.list.d/mono-official-stable.list && \
 	apt-get -y update && \
 	wget ${WGET_ARGS} https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb && \
 	apt-get install -y ./renode_${RENODE_VERSION}_amd64.deb && \
-	rm renode_${RENODE_VERSION}_amd64.deb \
+	rm renode_${RENODE_VERSION}_amd64.deb && \
+	pip3 install -r /opt/renode/tests/requirements.txt --no-cache-dir \
 	; fi
 
 # Install BSIM
@@ -48,18 +48,31 @@ RUN mkdir -p /opt/bsim && \
 	chmod ag+w . -R
 
 # Install uefi-run utility
-RUN wget ${WGET_ARGS} https://static.rust-lang.org/rustup/rustup-init.sh && \
-	chmod +x rustup-init.sh && \
-	./rustup-init.sh -y && \
-	. $HOME/.cargo/env && \
-	cargo install uefi-run --root /usr && \
-	rm -f ./rustup-init.sh
+RUN cargo install uefi-run --root /usr
 
 # Install LLVM and Clang
-RUN wget ${WGET_ARGS} https://apt.llvm.org/llvm.sh && \
-	chmod +x llvm.sh && \
-	./llvm.sh ${LLVM_VERSION} all && \
-	rm -f llvm.sh
+RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc && \
+	echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy main" | tee /etc/apt/sources.list.d/llvm-official.list && \
+	apt-get -y update && \
+	apt-get -y install \
+		clang-${LLVM_VERSION} \
+		lldb-${LLVM_VERSION} \
+		lld-${LLVM_VERSION} \
+		clangd-${LLVM_VERSION} \
+		clang-tidy-${LLVM_VERSION} \
+		clang-format-${LLVM_VERSION} \
+		clang-tools-${LLVM_VERSION} \
+		llvm-${LLVM_VERSION}-dev \
+		lld-${LLVM_VERSION} \
+		lldb-${LLVM_VERSION} \
+		llvm-${LLVM_VERSION}-tools \
+		libomp-${LLVM_VERSION}-dev \
+		libc++-${LLVM_VERSION}-dev \
+		libc++abi-${LLVM_VERSION}-dev \
+		libclang-common-${LLVM_VERSION}-dev \
+		libclang-${LLVM_VERSION}-dev \
+		libclang-cpp${LLVM_VERSION}-dev \
+		libunwind-${LLVM_VERSION}-dev
 
 # Install sparse package for static analysis
 RUN mkdir -p /opt/sparse && \

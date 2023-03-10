@@ -1,9 +1,6 @@
 # Base Image (ci-base)
 
-FROM ubuntu:20.04
-
-ARG CMAKE_VERSION=3.20.5
-ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll --no-check-certificate"
+FROM ubuntu:22.04
 
 ARG UID=1000
 ARG GID=1000
@@ -25,8 +22,10 @@ RUN apt-get -y update && \
 		bison \
 		build-essential \
 		ca-certificates \
+		cargo \
 		ccache \
 		chrpath \
+		cmake \
 		cpio \
 		device-tree-compiler \
 		dfu-util \
@@ -106,17 +105,11 @@ ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
-# Install CMake
-RUN wget ${WGET_ARGS} https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-Linux-${HOSTTYPE}.sh && \
-	chmod +x cmake-${CMAKE_VERSION}-Linux-${HOSTTYPE}.sh && \
-	./cmake-${CMAKE_VERSION}-Linux-${HOSTTYPE}.sh --skip-license --prefix=/usr/local && \
-	rm -f ./cmake-${CMAKE_VERSION}-Linux-${HOSTTYPE}.sh
-
 # Install Python dependencies
-RUN python3 -m pip install -U pip && \
-	pip3 install -U wheel setuptools && \
-	pip3 install pygobject && \
-	pip3 install \
+RUN python3 -m pip install -U --no-cache-dir pip && \
+	pip3 install -U --no-cache-dir wheel setuptools && \
+	pip3 install --no-cache-dir pygobject && \
+	pip3 install --no-cache-dir \
 		-r https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/master/scripts/requirements.txt \
 		-r https://raw.githubusercontent.com/zephyrproject-rtos/mcuboot/master/scripts/requirements.txt \
 		awscli GitPython imgtool junitparser numpy protobuf PyGithub \
