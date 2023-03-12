@@ -3,7 +3,7 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE:-zephyrprojectrtos/ci-base:latest}
 
-ARG ZSDK_VERSION=0.15.2
+ARG ZSDK_VERSION=0.16.0-rc1
 ARG DOXYGEN_VERSION=1.9.4
 ARG CMAKE_VERSION=3.20.5
 ARG RENODE_VERSION=1.13.3
@@ -82,10 +82,10 @@ RUN mkdir -p /opt/protoc && \
 # Install Zephyr SDK
 RUN mkdir -p /opt/toolchains && \
 	cd /opt/toolchains && \
-	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.gz && \
-	tar xf zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.gz && \
+	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz && \
+	tar xf zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz && \
 	zephyr-sdk-${ZSDK_VERSION}/setup.sh -t all -h -c && \
-	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.gz
+	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz
 
 # Clean up stale packages
 RUN apt-get clean -y && \
