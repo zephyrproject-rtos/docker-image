@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
 ARG ZSDK_VERSION=0.15.2
-ARG NRF_CONNECT_SDK_VERSION=v2.3.0
+ARG NRF_CONNECT_SDK_VERSION=v2.2.0
 ARG DOXYGEN_VERSION=1.9.6
 ARG CMAKE_VERSION=3.25.2
 ARG RENODE_VERSION=1.13.3
@@ -17,6 +17,10 @@ SHELL ["/bin/bash", "-c"]
 
 # Set non-interactive frontend for apt-get to skip any user confirmations
 ENV DEBIAN_FRONTEND=noninteractive
+
+# Set up ZDK ENVs
+ENV ZSDK_HOME /home/user/ncs
+ENV ZSDK_VERSION $ZSDK_VERSION
 
 # Install base packages
 RUN apt-get -y update && \
@@ -227,7 +231,7 @@ RUN sudo -E -- bash -c ' \
 	chown -R user:user /home/user/.cmake \
 	'
 
-RUN echo "source /opt/toolchains/zephyr-sdk-0.14.1/environment-setup-x86_64-pokysdk-linux" >> /home/user/.bashrc
+RUN echo "source /opt/toolchains/zephyr-sdk-${ZSDK_VERSION}/environment-setup-x86_64-pokysdk-linux" >> /home/user/.bashrc
 RUN echo "source ~/ncs/zephyr/zephyr-env.sh" >> /home/user/.bashrc
 
 WORKDIR /workdir
