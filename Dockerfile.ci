@@ -6,7 +6,7 @@ FROM ${BASE_IMAGE:-zephyrprojectrtos/ci-base:latest}
 ARG ZSDK_VERSION=0.16.0
 ARG DOXYGEN_VERSION=1.9.4
 ARG RENODE_VERSION=1.13.3
-ARG LLVM_VERSION=15
+ARG LLVM_VERSION=16
 ARG BSIM_VERSION=v2.0.1
 ARG SPARSE_VERSION=9212270048c3bd23f56c20a83d4f89b870b2b26e
 ARG PROTOC_VERSION=21.7
@@ -51,28 +51,10 @@ RUN mkdir -p /opt/bsim && \
 RUN cargo install uefi-run --root /usr
 
 # Install LLVM and Clang
-RUN wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc && \
-	echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy main" | tee /etc/apt/sources.list.d/llvm-official.list && \
-	apt-get -y update && \
-	apt-get -y install \
-		clang-${LLVM_VERSION} \
-		lldb-${LLVM_VERSION} \
-		lld-${LLVM_VERSION} \
-		clangd-${LLVM_VERSION} \
-		clang-tidy-${LLVM_VERSION} \
-		clang-format-${LLVM_VERSION} \
-		clang-tools-${LLVM_VERSION} \
-		llvm-${LLVM_VERSION}-dev \
-		lld-${LLVM_VERSION} \
-		lldb-${LLVM_VERSION} \
-		llvm-${LLVM_VERSION}-tools \
-		libomp-${LLVM_VERSION}-dev \
-		libc++-${LLVM_VERSION}-dev \
-		libc++abi-${LLVM_VERSION}-dev \
-		libclang-common-${LLVM_VERSION}-dev \
-		libclang-${LLVM_VERSION}-dev \
-		libclang-cpp${LLVM_VERSION}-dev \
-		libunwind-${LLVM_VERSION}-dev
+RUN wget ${WGET_ARGS} https://apt.llvm.org/llvm.sh && \
+	chmod +x llvm.sh && \
+	./llvm.sh ${LLVM_VERSION} all && \
+	rm -f llvm.sh
 
 # Install sparse package for static analysis
 RUN mkdir -p /opt/sparse && \
