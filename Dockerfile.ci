@@ -7,7 +7,7 @@ ARG ZSDK_VERSION=0.16.0
 ARG DOXYGEN_VERSION=1.9.4
 ARG RENODE_VERSION=1.13.3
 ARG LLVM_VERSION=16
-ARG BSIM_VERSION=v2.0.1
+ARG BSIM_VERSION=v2.1
 ARG SPARSE_VERSION=9212270048c3bd23f56c20a83d4f89b870b2b26e
 ARG PROTOC_VERSION=21.7
 ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll"
@@ -36,16 +36,16 @@ RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 	; fi
 
 # Install BSIM
-RUN mkdir -p /opt/bsim && \
-	cd /opt/bsim && \
-	rm -f repo && \
-	wget ${WGET_ARGS} https://storage.googleapis.com/git-repo-downloads/repo && \
-	chmod a+x ./repo && \
-	python3 ./repo init -u https://github.com/BabbleSim/manifest.git -m zephyr_docker.xml -b ${BSIM_VERSION} --depth 1 &&\
-	python3 ./repo sync && \
+# Note: west needs an extra folder level, so we create a link to the old location to be backwards compatible
+RUN mkdir -p /opt/bsim_west && \
+	cd /opt/ && \
+	west init -m https://github.com/zephyrproject-rtos/babblesim-manifest.git --mr ${BSIM_VERSION} bsim_west && \
+	cd bsim_west/bsim && \
+	west update && \
 	make everything -j 8 && \
 	echo ${BSIM_VERSION} > ./version && \
-	chmod ag+w . -R
+	chmod ag+w . -R && \
+	ln -s /opt/bsim_west/bsim /opt/bsim
 
 # Install uefi-run utility
 RUN cargo install uefi-run --root /usr
