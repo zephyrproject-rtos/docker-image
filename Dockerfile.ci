@@ -51,14 +51,10 @@ RUN mkdir -p /opt/bsim_west && \
 RUN cargo install uefi-run --root /usr
 
 # Install LLVM and Clang
-# FIXME: AArch64 is disabled because the LLVM APT repository contains broken
-#        packages for it.
-RUN if [ "${HOSTTYPE}" != "aarch64" ]; then \
-	wget ${WGET_ARGS} https://apt.llvm.org/llvm.sh && \
+RUN wget ${WGET_ARGS} https://apt.llvm.org/llvm.sh && \
 	chmod +x llvm.sh && \
 	./llvm.sh ${LLVM_VERSION} all && \
-	rm -f llvm.sh \
-	; fi
+	rm -f llvm.sh
 
 # Install sparse package for static analysis
 RUN mkdir -p /opt/sparse && \
