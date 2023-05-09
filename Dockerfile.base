@@ -111,7 +111,7 @@ RUN python3 -m pip install -U --no-cache-dir pip && \
 	pip3 install --no-cache-dir pygobject && \
 	pip3 install --no-cache-dir \
 		-r https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/main/scripts/requirements.txt \
-		-r https://raw.githubusercontent.com/zephyrproject-rtos/mcuboot/master/scripts/requirements.txt \
+		-r https://raw.githubusercontent.com/zephyrproject-rtos/mcuboot/main/scripts/requirements.txt \
 		GitPython imgtool junitparser numpy protobuf PyGithub \
 		pylint sh statistics west && \
 	pip3 check
