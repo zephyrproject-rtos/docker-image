@@ -3,13 +3,13 @@ name: CI
 on:
   push:
     branches:
-    - master
+    - main
     - v*-branch
     tags:
     - v*
   pull_request:
     branches:
-    - master
+    - main
     - v*-branch
 
 permissions:
