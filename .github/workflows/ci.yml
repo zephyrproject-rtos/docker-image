@@ -30,10 +30,10 @@ jobs:
         variant:
         - platform: linux/amd64
           arch: amd64
-          builder: zephyr-runner-linux-x64-xlarge
+          builder: zephyr-runner-linux-x64-4xlarge
         - platform: linux/arm64
           arch: arm64
-          builder: zephyr-runner-linux-arm64-xlarge
+          builder: zephyr-runner-linux-arm64-4xlarge
 
     services:
       registry:
@@ -189,7 +189,7 @@ jobs:
 
   merge:
     name: Merge
-    runs-on: zephyr-runner-linux-x64-xlarge
+    runs-on: zephyr-runner-linux-x64-4xlarge
     needs: build
     if: ${{ github.event_name != 'pull_request' }}
 
