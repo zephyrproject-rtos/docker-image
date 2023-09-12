@@ -22,7 +22,6 @@ RUN apt-get -y update && \
 		bison \
 		build-essential \
 		ca-certificates \
-		cargo \
 		ccache \
 		chrpath \
 		cmake \

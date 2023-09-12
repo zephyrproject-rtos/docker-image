@@ -47,8 +47,11 @@ RUN mkdir -p /opt/bsim_west && \
 	chmod ag+w . -R && \
 	ln -s /opt/bsim_west/bsim /opt/bsim
 
+# Install cargo environment
+RUN wget -q -O-  "https://sh.rustup.rs" | sh -s -- -y
+
 # Install uefi-run utility
-RUN cargo install uefi-run --root /usr
+RUN ~/.cargo/bin/cargo install uefi-run --root /usr
 
 # Install LLVM and Clang
 RUN wget ${WGET_ARGS} https://apt.llvm.org/llvm.sh && \
