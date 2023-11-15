@@ -96,7 +96,7 @@ RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 	apt-get -y update && \
 	apt-get -y upgrade && \
 	apt-get install --no-install-recommends -y \
-		libsdl2-dev:i386 \
+		libsdl2-dev:i386 libfuse-dev:i386 \
 	; fi
 
 # Initialise system locale
