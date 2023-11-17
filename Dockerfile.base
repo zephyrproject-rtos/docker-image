@@ -37,6 +37,7 @@ RUN apt-get -y update && \
 		gawk \
 		gcc \
 		gcovr \
+		gdb \
 		git \
 		git-core \
 		gnupg \
