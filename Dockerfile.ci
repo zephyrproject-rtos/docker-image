@@ -17,6 +17,10 @@ ARG SPARSE_VERSION=9212270048c3bd23f56c20a83d4f89b870b2b26e
 ENV SPARSE_VERSION=$SPARSE_VERSION
 ARG PROTOC_VERSION=21.7
 ENV PROTOC_VERSION=$PROTOC_VERSION
+ARG FVP_BASE_REVC_VERSION=11.24_11
+ENV FVP_BASE_REVC_VERSION=$FVP_BASE_REVC_VERSION
+ARG FVP_BASE_AEMV8R_VERSION=11.24_11
+ENV FVP_BASE_AEMV8R_VERSION=$FVP_BASE_AEMV8R_VERSION
 ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll"
 
 
@@ -91,6 +95,20 @@ RUN mkdir -p /opt/toolchains && \
 	tar xf zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz && \
 	zephyr-sdk-${ZSDK_VERSION}/setup.sh -t all -h -c && \
 	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz
+
+# Install FVP
+RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
+    mkdir -p /opt/fvps && \
+    cd /opt/fvps && \
+    wget ${WGET_ARGS} https://developer.arm.com/-/media/Files/downloads/ecosystem-models/FVP_Base_RevC-2xAEMvA_${FVP_BASE_REVC_VERSION}_Linux64.tgz && \
+    tar xf FVP_Base_RevC-2xAEMvA_${FVP_BASE_REVC_VERSION}_Linux64.tgz && \
+    ln -s /opt/fvps/Base_RevC_AEMvA_pkg/models/Linux64_GCC-9.3/FVP_Base_RevC-2xAEMvA /usr/local/bin && \
+    rm FVP_Base_RevC-2xAEMvA_${FVP_BASE_REVC_VERSION}_Linux64.tgz && \
+    wget ${WGET_ARGS} https://developer.arm.com/-/media/Files/downloads/ecosystem-models/FVP_Base_AEMv8R_${FVP_BASE_AEMV8R_VERSION}_Linux64.tgz && \
+    tar xf FVP_Base_AEMv8R_${FVP_BASE_AEMV8R_VERSION}_Linux64.tgz && \
+    ln -s /opt/fvps/AEMv8R_base_pkg/models/Linux64_GCC-9.3/FVP_BaseR_AEMv8R /usr/local/bin && \
+    rm FVP_Base_AEMv8R_${FVP_BASE_AEMV8R_VERSION}_Linux64.tgz \
+    ; fi
 
 # Clean up stale packages
 RUN apt-get clean -y && \
