@@ -31,9 +31,10 @@ jobs:
         - platform: linux/amd64
           arch: amd64
           builder: zephyr-runner-linux-x64-4xlarge
-        - platform: linux/arm64
-          arch: arm64
-          builder: zephyr-runner-linux-arm64-4xlarge
+        # NOTE: arm64 build is temporarily disabled due to CI runner issues.
+        # - platform: linux/arm64
+        #   arch: arm64
+        #   builder: zephyr-runner-linux-arm64-4xlarge
 
     services:
       registry:
@@ -252,7 +253,7 @@ jobs:
 
     - name: Create multi-architecture image
       run: |
-        archs=(amd64 arm64)
+        archs=(amd64) # (amd64 arm64)
         ci_base_image="ghcr.io/zephyrproject-rtos/ci-base:${{ steps.meta_ci_base_push.outputs.version }}"
         ci_image="ghcr.io/zephyrproject-rtos/ci:${{ steps.meta_ci_push.outputs.version }}"
         developer_image="ghcr.io/zephyrproject-rtos/zephyr-build:${{ steps.meta_developer_push.outputs.version }}"
