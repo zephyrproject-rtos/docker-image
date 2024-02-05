@@ -21,7 +21,10 @@ ARG FVP_BASE_REVC_VERSION=11.24_11
 ENV FVP_BASE_REVC_VERSION=$FVP_BASE_REVC_VERSION
 ARG FVP_BASE_AEMV8R_VERSION=11.24_11
 ENV FVP_BASE_AEMV8R_VERSION=$FVP_BASE_AEMV8R_VERSION
-ENV ARMFVP_BIN_PATH=/usr/local/bin
+ARG FVP_CORSTONE300_VERSION=11.24_13
+ENV FVP_CORSTONE300_VERSION=$FVP_CORSTONE300_VERSION
+ARG FVP_CORSTONE310_VERSION=11.24_13
+ENV FVP_CORSTONE310_VERSION=$FVP_CORSTONE310_VERSION
 ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll"
 
 
@@ -98,18 +101,25 @@ RUN mkdir -p /opt/toolchains && \
 	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz
 
 # Install FVP
+#
+# Ecosystem FVP License permits redistribution (refer to the relevant license available in the container).
 RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
-    mkdir -p /opt/fvps && \
-    cd /opt/fvps && \
-    wget ${WGET_ARGS} https://developer.arm.com/-/media/Files/downloads/ecosystem-models/FVP_Base_RevC-2xAEMvA_${FVP_BASE_REVC_VERSION}_Linux64.tgz && \
-    tar xf FVP_Base_RevC-2xAEMvA_${FVP_BASE_REVC_VERSION}_Linux64.tgz && \
-    ln -s /opt/fvps/Base_RevC_AEMvA_pkg/models/Linux64_GCC-9.3/FVP_Base_RevC-2xAEMvA /usr/local/bin && \
-    rm FVP_Base_RevC-2xAEMvA_${FVP_BASE_REVC_VERSION}_Linux64.tgz && \
-    wget ${WGET_ARGS} https://developer.arm.com/-/media/Files/downloads/ecosystem-models/FVP_Base_AEMv8R_${FVP_BASE_AEMV8R_VERSION}_Linux64.tgz && \
-    tar xf FVP_Base_AEMv8R_${FVP_BASE_AEMV8R_VERSION}_Linux64.tgz && \
-    ln -s /opt/fvps/AEMv8R_base_pkg/models/Linux64_GCC-9.3/FVP_BaseR_AEMv8R /usr/local/bin && \
-    rm FVP_Base_AEMv8R_${FVP_BASE_AEMV8R_VERSION}_Linux64.tgz \
-    ; fi
+	mkdir -p /opt/fvps && \
+	cd /opt/fvps && \
+	wget ${WGET_ARGS} -O- https://developer.arm.com/-/media/Files/downloads/ecosystem-models/FVP_Base_RevC-2xAEMvA_${FVP_BASE_REVC_VERSION}_Linux64.tgz | tar xz && \
+	wget ${WGET_ARGS} -O- https://developer.arm.com/-/media/Files/downloads/ecosystem-models/FVP_Base_AEMv8R_${FVP_BASE_AEMV8R_VERSION}_Linux64.tgz | tar xz && \
+	wget ${WGET_ARGS} -O- https://developer.arm.com/-/media/Arm%20Developer%20Community/Downloads/OSS/FVP/Corstone-300/FVP_Corstone_SSE-300_${FVP_CORSTONE300_VERSION}_Linux64.tgz | tar xz && \
+	wget ${WGET_ARGS} -O- https://developer.arm.com/-/media/Arm%20Developer%20Community/Downloads/OSS/FVP/Corstone-310/FVP_Corstone_SSE-310_${FVP_CORSTONE310_VERSION}_Linux64.tgz | tar xz && \
+	./FVP_Corstone_SSE-300.sh --no-interactive --i-agree-to-the-contained-eula && \
+	./FVP_Corstone_SSE-310.sh --no-interactive --i-agree-to-the-contained-eula && \
+	ln -s /opt/fvps/Base_RevC_AEMvA_pkg/models/Linux64_GCC-9.3/FVP_Base_RevC-2xAEMvA /usr/local/bin && \
+	ln -s /opt/fvps/AEMv8R_base_pkg/models/Linux64_GCC-9.3/FVP_BaseR_AEMv8R /usr/local/bin && \
+	ln -s /usr/local/FVP_Corstone_SSE-300/models/Linux64_GCC-9.3/FVP_Corstone_SSE-300_Ethos-U55 /usr/local/bin && \
+	ln -s /usr/local/FVP_Corstone_SSE-300/models/Linux64_GCC-9.3/FVP_Corstone_SSE-300_Ethos-U65 /usr/local/bin && \
+	ln -s /usr/local/FVP_Corstone_SSE-310/models/Linux64_GCC-9.3/FVP_Corstone_SSE-310 /usr/local/bin && \
+	ln -s /usr/local/FVP_Corstone_SSE-310/models/Linux64_GCC-9.3/FVP_Corstone_SSE-310_Ethos-U65 /usr/local/bin && \
+	rm FVP_Corstone_SSE-300.sh FVP_Corstone_SSE-310.sh \
+	; fi
 
 # Clean up stale packages
 RUN apt-get clean -y && \
@@ -132,3 +142,4 @@ USER root
 ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
 ENV PKG_CONFIG_PATH=/usr/lib/i386-linux-gnu/pkgconfig
 ENV OVMF_FD_PATH=/usr/share/ovmf/OVMF.fd
+ENV ARMFVP_BIN_PATH=/usr/local/bin
