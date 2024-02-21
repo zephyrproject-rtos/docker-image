@@ -22,7 +22,9 @@ concurrency:
 jobs:
   build:
     name: Build (${{ matrix.variant.platform }})
-    runs-on: ${{ matrix.variant.builder }}
+    runs-on:
+      group: ${{ matrix.variant.builder }}
+    container: ghcr.io/zephyrproject-rtos/sdk-build:v1.2.3
 
     strategy:
       fail-fast: true
@@ -30,10 +32,10 @@ jobs:
         variant:
         - platform: linux/amd64
           arch: amd64
-          builder: zephyr-runner-linux-x64-4xlarge
+          builder: zephyr-runner-v2-linux-x64-4xlarge
         - platform: linux/arm64
           arch: arm64
-          builder: zephyr-runner-linux-arm64-4xlarge
+          builder: zephyr-runner-v2-linux-arm64-4xlarge
 
     services:
       registry:
@@ -189,7 +191,9 @@ jobs:
 
   merge:
     name: Merge
-    runs-on: zephyr-runner-linux-x64-4xlarge
+    runs-on:
+      group: zephyr-runner-v2-linux-x64-4xlarge
+    container: ghcr.io/zephyrproject-rtos/sdk-build:v1.2.3
     needs: build
     if: ${{ github.event_name != 'pull_request' }}
 
