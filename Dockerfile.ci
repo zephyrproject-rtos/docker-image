@@ -7,6 +7,8 @@ ARG ZSDK_VERSION=0.16.5-1
 ENV ZSDK_VERSION=$ZSDK_VERSION
 ARG KITWARE_NINJA_VERSION=1.11.1.g95dee.kitware.jobserver-1
 ENV KITWARE_NINJA_VERSION=$KITWARE_NINJA_VERSION
+ARG CCACHE_VERSION=4.9.1
+ENV CCACHE_VERSION=$CCACHE_VERSION
 ARG DOXYGEN_VERSION=1.9.4
 ENV DOXYGEN_VERSION=$DOXYGEN_VERSION
 ARG RENODE_VERSION=1.14.0
@@ -36,6 +38,15 @@ RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 	tar xf ninja-${KITWARE_NINJA_VERSION}_x86_64-linux-gnu.tar.gz -C /opt && \
 	ln -s /opt/ninja-${KITWARE_NINJA_VERSION}_x86_64-linux-gnu/ninja /usr/local/bin && \
 	rm ninja-${KITWARE_NINJA_VERSION}_x86_64-linux-gnu.tar.gz \
+	; fi
+
+# Install ccache
+# NOTE: Pre-built ccache binaries are only available for x86_64 host.
+RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
+	wget ${WGET_ARGS} https://github.com/ccache/ccache/releases/download/v${CCACHE_VERSION}/ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz && \
+	tar xf ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz -C /opt && \
+	ln -s /opt/ccache-${CCACHE_VERSION}-linux-x86_64/ccache /usr/local/bin && \
+	rm ccache-${CCACHE_VERSION}-linux-x86_64.tar.xz \
 	; fi
 
 # Install Doxygen (x86 only)
