@@ -5,6 +5,8 @@ FROM ${BASE_IMAGE:-zephyrprojectrtos/ci-base:latest}
 
 ARG ZSDK_VERSION=0.16.5-1
 ENV ZSDK_VERSION=$ZSDK_VERSION
+ARG KITWARE_NINJA_VERSION=1.11.1.g95dee.kitware.jobserver-1
+ENV KITWARE_NINJA_VERSION=$KITWARE_NINJA_VERSION
 ARG DOXYGEN_VERSION=1.9.4
 ENV DOXYGEN_VERSION=$DOXYGEN_VERSION
 ARG RENODE_VERSION=1.14.0
@@ -27,6 +29,14 @@ ARG FVP_CORSTONE310_VERSION=11.24_13
 ENV FVP_CORSTONE310_VERSION=$FVP_CORSTONE310_VERSION
 ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll"
 
+# Install Kitware ninja
+# NOTE: Pre-built Kitware ninja binaries are only available for x86_64 host.
+RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
+	wget ${WGET_ARGS} https://github.com/Kitware/ninja/releases/download/v${KITWARE_NINJA_VERSION}/ninja-${KITWARE_NINJA_VERSION}_x86_64-linux-gnu.tar.gz && \
+	tar xf ninja-${KITWARE_NINJA_VERSION}_x86_64-linux-gnu.tar.gz -C /opt && \
+	ln -s /opt/ninja-${KITWARE_NINJA_VERSION}_x86_64-linux-gnu/ninja /usr/local/bin && \
+	rm ninja-${KITWARE_NINJA_VERSION}_x86_64-linux-gnu.tar.gz \
+	; fi
 
 # Install Doxygen (x86 only)
 # NOTE: Pre-built Doxygen binaries are only available for x86_64 host.
