@@ -114,7 +114,7 @@ RUN python3 -m pip install -U --no-cache-dir pip && \
 		-r https://raw.githubusercontent.com/zephyrproject-rtos/mcuboot/main/scripts/requirements.txt \
 		GitPython imgtool junitparser numpy protobuf PyGithub \
 		pylint sh statistics west \
-		nrf-regtool>=5.1.0 && \
+		nrf-regtool>=5.2.0 && \
 	pip3 check
 
 # Clean up stale packages
