@@ -65,6 +65,12 @@ jobs:
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: TEST1
+      run: |
+        sed -i 's/graphroot = .*/graphroot = "\/__w\/container_storage"/' /etc/containers/storage.conf
+        cat /etc/containers/storage.conf
+        df -h
+
     - name: Generate metadata for base image
       id: meta_base
       uses: docker/metadata-action@v5
@@ -117,6 +123,11 @@ jobs:
         containerfiles: Dockerfile.base
         tags: ${{ steps.meta_base.outputs.tags }}
         labels: ${{ steps.meta_base.outputs.labels }}
+
+    - name: TEST2
+      run: |
+        df -h
+        ls -l /__w
 
     - name: Build CI image
       uses: redhat-actions/buildah-build@v2
