@@ -132,6 +132,8 @@ jobs:
         labels: ${{ steps.meta_ci.outputs.labels }}
         build-args: |
           BASE_IMAGE=${{ env.GHCR_BASE }}/${{ env.BASE_IMAGE_NAME }}:${{ steps.meta_base.outputs.version }}
+        extra-args: |
+          --pull-never
 
     - name: Build Developer image
       uses: redhat-actions/buildah-build@v2
@@ -142,6 +144,8 @@ jobs:
         labels: ${{ steps.meta_developer.outputs.labels }}
         build-args: |
           BASE_IMAGE=${{ env.GHCR_BASE }}/${{ env.CI_IMAGE_NAME }}:${{ steps.meta_ci.outputs.version }}
+        extra-args: |
+          --pull-never
 
     - name: Push base image
       if: ${{ github.event_name != 'pull_request' }}
