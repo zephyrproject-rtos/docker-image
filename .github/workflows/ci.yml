@@ -123,6 +123,11 @@ jobs:
         tags: ${{ steps.meta_base.outputs.tags }}
         labels: ${{ steps.meta_base.outputs.labels }}
 
+    - name: TEST1
+      run: |
+        buildah images
+        podman image ls
+
     - name: Build CI image
       uses: redhat-actions/buildah-build@v2
       with:
