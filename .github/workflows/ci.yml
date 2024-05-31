@@ -175,6 +175,11 @@ jobs:
     if: ${{ github.event_name != 'pull_request' }}
 
     steps:
+    - name: Configure container storage
+      run: |
+        sed -i 's/graphroot = .*/graphroot = "\/__w\/container_storage"/' /etc/containers/storage.conf
+        mkdir -p /__w/container_storage
+
     - name: Login to DockerHub
       if: ${{ github.event_name != 'pull_request' }}
       uses: redhat-actions/podman-login@v1
