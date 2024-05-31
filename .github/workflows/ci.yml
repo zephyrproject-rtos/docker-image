@@ -46,6 +46,11 @@ jobs:
           builder: zephyr-runner-v2-linux-arm64-4xlarge
 
     steps:
+    - name: Configure temporary directory
+      run: |
+        mkdir -p /__w/tmp
+        echo "TMPDIR=/__w/tmp" >> $GITHUB_ENV
+
     - name: Configure container storage
       run: |
         sed -i 's/graphroot = .*/graphroot = "\/__w\/container_storage"/' /etc/containers/storage.conf
@@ -175,6 +180,11 @@ jobs:
     if: ${{ github.event_name != 'pull_request' }}
 
     steps:
+    - name: Configure temporary directory
+      run: |
+        mkdir -p /__w/tmp
+        echo "TMPDIR=/__w/tmp" >> $GITHUB_ENV
+
     - name: Configure container storage
       run: |
         sed -i 's/graphroot = .*/graphroot = "\/__w\/container_storage"/' /etc/containers/storage.conf
