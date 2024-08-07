@@ -89,6 +89,17 @@ RUN wget -q -O-  "https://sh.rustup.rs" | sh -s -- -y
 # Install uefi-run utility
 RUN ~/.cargo/bin/cargo install uefi-run --root /usr
 
+# Install target support for Rust.  This is the list as of the current
+# time.
+RUN \
+	~/.cargo/bin/rustup target install riscv32i-unknown-none-elf && \
+	~/.cargo/bin/rustup target install riscv64imac-unknown-none-elf && \
+	~/.cargo/bin/rustup target install thumbv6m-none-eabi && \
+	~/.cargo/bin/rustup target install thumbv7em-none-eabi && \
+	~/.cargo/bin/rustup target install thumbv7m-none-eabi && \
+	~/.cargo/bin/rustup target install thumbv8m.main-none-eabi && \
+	~/.cargo/bin/rustup target install x86_64-unknown-none
+
 # Install LLVM and Clang
 RUN wget ${WGET_ARGS} https://apt.llvm.org/llvm.sh && \
 	chmod +x llvm.sh && \
