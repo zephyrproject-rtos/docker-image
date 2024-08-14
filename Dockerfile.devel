@@ -13,7 +13,8 @@ RUN apt-get -y update && \
 	x11vnc \
 	xvfb \
 	xterm \
-	xz-utils
+	xz-utils \
+	bsdmainutils 
 
 # Clean up stale packages
 RUN apt-get clean -y && \
@@ -26,8 +27,8 @@ RUN dos2unix /home/user/entrypoint.sh
 ENTRYPOINT ["/home/user/entrypoint.sh"]
 
 # Add bash completion script
-ADD ./bash_completion /home/user/.bash_completion
-RUN mkdir -p /home/user/.bash_completion.d
+#ADD ./bash_completion /home/user/.bash_completion
+#RUN mkdir -p /home/user/.bash_completion.d
 
 # Switch to 'user' context
 USER user
