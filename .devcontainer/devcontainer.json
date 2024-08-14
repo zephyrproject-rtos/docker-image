@@ -1,0 +1,11 @@
+{
+  "name": "PS zephyr dev container",
+  "build": { "dockerfile": "../Dockerfile.devel"},
+
+  "mounts": [ "source=${localEnv:LOCAL_WORKSPACE_PATH},target=/workdir,type=bind"],
+  "workspaceFolder": "/workdir",
+
+  "containerEnv": {
+    "SHELL": "/bin/bash"
+  }
+}
