@@ -31,14 +31,14 @@ DockerHub (`docker.io`).
 
 ```
 docker run -ti -v $HOME/Work/zephyrproject:/workdir \
-           ghcr.io/zephyrproject-rtos/zephyr-build:latest
+           ghcr.io/zephyrproject-rtos/zephyr-build:main
 ```
 
 **DockerHub (`docker.io`)**
 
 ```
 docker run -ti -v $HOME/Work/zephyrproject:/workdir \
-           docker.io/zephyrprojectrtos/zephyr-build:latest
+           docker.io/zephyrprojectrtos/zephyr-build:main
 ```
 
 #### Building Developer Docker Image
