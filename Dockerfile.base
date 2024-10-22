@@ -114,7 +114,7 @@ RUN python3 -m pip install -U --no-cache-dir pip && \
 		-r https://raw.githubusercontent.com/zephyrproject-rtos/mcuboot/main/scripts/requirements.txt \
 		GitPython imgtool junitparser junit2html numpy protobuf PyGithub \
 		pylint sh statistics west \
-		nrf-regtool~=6.0.0
+		nrf-regtool~=7.0.0
 # Run pip check on x86 only for now, it fails on arm.
 RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 	pip3 check \
