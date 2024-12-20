@@ -13,7 +13,9 @@ RUN apt-get -y update && \
 	x11vnc \
 	xvfb \
 	xterm \
-	xz-utils
+	xz-utils \
+	usbutils \
+	vim
 
 # Clean up stale packages
 RUN apt-get clean -y && \
@@ -33,7 +35,7 @@ RUN mkdir -p /home/user/.bash_completion.d
 USER user
 
 # Configure environment variables
-ENV DISPLAY=:0
+# ENV DISPLAY=:0
 ENV ZEPHYR_BASE=/workdir/zephyr
 
 # Set working directory
@@ -41,11 +43,11 @@ WORKDIR /workdir
 VOLUME ["/workdir"]
 
 # Configure VNC authentication
-ARG VNCPASSWD=zephyr
-RUN mkdir ~/.vnc && x11vnc -storepasswd ${VNCPASSWD} ~/.vnc/passwd
+# ARG VNCPASSWD=zephyr
+# RUN mkdir ~/.vnc && x11vnc -storepasswd ${VNCPASSWD} ~/.vnc/passwd
 
 # Expose port 5900 for VNC
-EXPOSE 5900
+# EXPOSE 5900
 
 # Adjust 'user' home directory permissions
 USER root
