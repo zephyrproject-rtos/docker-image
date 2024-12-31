@@ -21,14 +21,18 @@ ARG SPARSE_VERSION=9212270048c3bd23f56c20a83d4f89b870b2b26e
 ENV SPARSE_VERSION=$SPARSE_VERSION
 ARG PROTOC_VERSION=21.7
 ENV PROTOC_VERSION=$PROTOC_VERSION
-ARG FVP_BASE_REVC_VERSION=11.24_11
+ARG FVP_BASE_REVC_VERSION=11.27_19
 ENV FVP_BASE_REVC_VERSION=$FVP_BASE_REVC_VERSION
-ARG FVP_BASE_AEMV8R_VERSION=11.24_11
+ARG FVP_BASE_AEMV8R_VERSION=11.27_19
 ENV FVP_BASE_AEMV8R_VERSION=$FVP_BASE_AEMV8R_VERSION
-ARG FVP_CORSTONE300_VERSION=11.24_13
+ARG FVP_CORSTONE300_VERSION=11.27_42
 ENV FVP_CORSTONE300_VERSION=$FVP_CORSTONE300_VERSION
-ARG FVP_CORSTONE310_VERSION=11.24_13
+ARG FVP_CORSTONE310_VERSION=11.27_42
 ENV FVP_CORSTONE310_VERSION=$FVP_CORSTONE310_VERSION
+ARG FVP_CORSTONE315_VERSION=11.27_42
+ENV FVP_CORSTONE315_VERSION=$FVP_CORSTONE315_VERSION
+ARG FVP_CORSTONE320_VERSION=11.27_25
+ENV FVP_CORSTONE320_VERSION=$FVP_CORSTONE320_VERSION
 ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll"
 
 # Install Kitware ninja
@@ -135,23 +139,37 @@ RUN mkdir -p /opt/toolchains && \
 # Install FVP
 #
 # Ecosystem FVP License permits redistribution (refer to the relevant license available in the container).
-RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
+RUN set -o pipefail && \
 	mkdir -p /opt/fvps && \
 	cd /opt/fvps && \
-	wget ${WGET_ARGS} -O- https://developer.arm.com/-/media/Files/downloads/ecosystem-models/FVP_Base_RevC-2xAEMvA_${FVP_BASE_REVC_VERSION}_Linux64.tgz | tar xz && \
-	wget ${WGET_ARGS} -O- https://developer.arm.com/-/media/Files/downloads/ecosystem-models/FVP_Base_AEMv8R_${FVP_BASE_AEMV8R_VERSION}_Linux64.tgz | tar xz && \
-	wget ${WGET_ARGS} -O- https://developer.arm.com/-/media/Arm%20Developer%20Community/Downloads/OSS/FVP/Corstone-300/FVP_Corstone_SSE-300_${FVP_CORSTONE300_VERSION}_Linux64.tgz | tar xz && \
-	wget ${WGET_ARGS} -O- https://developer.arm.com/-/media/Arm%20Developer%20Community/Downloads/OSS/FVP/Corstone-310/FVP_Corstone_SSE-310_${FVP_CORSTONE310_VERSION}_Linux64.tgz | tar xz && \
-	./FVP_Corstone_SSE-300.sh --no-interactive --i-agree-to-the-contained-eula && \
-	./FVP_Corstone_SSE-310.sh --no-interactive --i-agree-to-the-contained-eula && \
-	ln -s /opt/fvps/Base_RevC_AEMvA_pkg/models/Linux64_GCC-9.3/FVP_Base_RevC-2xAEMvA /usr/local/bin && \
-	ln -s /opt/fvps/AEMv8R_base_pkg/models/Linux64_GCC-9.3/FVP_BaseR_AEMv8R /usr/local/bin && \
-	ln -s /usr/local/FVP_Corstone_SSE-300/models/Linux64_GCC-9.3/FVP_Corstone_SSE-300_Ethos-U55 /usr/local/bin && \
-	ln -s /usr/local/FVP_Corstone_SSE-300/models/Linux64_GCC-9.3/FVP_Corstone_SSE-300_Ethos-U65 /usr/local/bin && \
-	ln -s /usr/local/FVP_Corstone_SSE-310/models/Linux64_GCC-9.3/FVP_Corstone_SSE-310 /usr/local/bin && \
-	ln -s /usr/local/FVP_Corstone_SSE-310/models/Linux64_GCC-9.3/FVP_Corstone_SSE-310_Ethos-U65 /usr/local/bin && \
-	rm FVP_Corstone_SSE-300.sh FVP_Corstone_SSE-310.sh \
-	; fi
+	if [ "${HOSTTYPE}" = "x86_64" ]; then SUFFIX=""; else SUFFIX="_armv8l"; fi && \
+	\
+	declare -A FVP_INSTALLABLE=( \
+	["300"]="${FVP_CORSTONE300_VERSION}" \
+	["310"]="${FVP_CORSTONE310_VERSION}" \
+	["315"]="${FVP_CORSTONE315_VERSION}" \
+	["320"]="${FVP_CORSTONE320_VERSION}" \
+	) ; \
+	for corstone in ${!FVP_INSTALLABLE[@]} ; \
+	do version_build="${FVP_INSTALLABLE[$corstone]}" \
+	&& echo "Downloading Corstone-${corstone} ${version_build}" \
+	&& wget ${WGET_ARGS} -O- https://developer.arm.com/-/cdn-downloads/permalink/FVPs-Corstone-IoT/Corstone-${corstone}/FVP_Corstone_SSE-${corstone}_${version_build}_Linux64${SUFFIX}.tgz | tar xz \
+	&& ./FVP_Corstone_SSE-${corstone}.sh --no-interactive --i-agree-to-the-contained-eula -d /opt/fvps/Corstone-${corstone} \
+	&& rm FVP_Corstone_SSE-${corstone}.sh \
+	&& ln -s /opt/fvps/Corstone-${corstone}/models/*/FVP_* /usr/local/bin ; \
+	done && \
+	\
+	declare -A FVP_EXTRACTABLE=( \
+	["RevC-2xAEMvA"]="${FVP_BASE_REVC_VERSION}" \
+	["AEMv8R"]="${FVP_BASE_AEMV8R_VERSION}" \
+	) && \
+	for base in ${!FVP_EXTRACTABLE[@]} ; \
+	do version_build="${FVP_EXTRACTABLE[$base]}" \
+	&& echo "Downloading Base-${base} ${FVP_EXTRACTABLE[$base]}" \
+	&& IFS="_" read version build <<< "${version_build}" \
+	&& wget ${WGET_ARGS} -O- https://developer.arm.com/-/cdn-downloads/permalink/FVPs-Architecture/FM-${version}/FVP_Base_${base}_${version_build}_Linux64${SUFFIX}.tgz | tar xz \
+	; done && \
+	ln -s /opt/fvps/*_pkg/models/*/FVP_* /usr/local/bin
 
 # Clean up stale packages
 RUN apt-get clean -y && \
