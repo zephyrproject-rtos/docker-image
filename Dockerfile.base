@@ -47,6 +47,7 @@ RUN apt-get -y update && \
 		iproute2 \
 		lcov \
 		libcairo2-dev \
+		libgirepository1.0-dev \
 		libglib2.0-dev \
 		libgtk2.0-0 \
 		liblocale-gettext-perl \
@@ -108,7 +109,7 @@ ENV LC_ALL=en_US.UTF-8
 # Install Python dependencies
 RUN python3 -m pip install -U --no-cache-dir pip && \
 	pip3 install -U --no-cache-dir wheel setuptools && \
-	pip3 install --no-cache-dir pygobject && \
+	pip3 install --no-cache-dir pygobject==v3.50.0 && \
 	pip3 install --no-cache-dir \
 		-r https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/main/scripts/requirements.txt \
 		-r https://raw.githubusercontent.com/zephyrproject-rtos/mcuboot/main/scripts/requirements.txt \
