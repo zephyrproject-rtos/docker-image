@@ -1,9 +1,13 @@
 # Base Image (ci-base)
 
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 ARG UID=1000
 ARG GID=1000
+ARG PYTHON_VENV_PATH=/opt/python/venv
+
+# this conflicts with uid 1000, remove it
+RUN userdel -r ubuntu || true
 
 # Set default shell during Docker image build to bash
 SHELL ["/bin/bash", "-c"]
@@ -42,7 +46,6 @@ RUN apt-get -y update && \
 		git-core \
 		gnupg \
 		gperf \
-		gtk-sharp2 \
 		help2man \
 		iproute2 \
 		lcov \
@@ -70,7 +73,7 @@ RUN apt-get -y update && \
 		python3-ply \
 		python3-setuptools \
 		python-is-python3 \
-		qemu \
+		python3-venv \
 		rsync \
 		socat \
 		srecord \
@@ -83,20 +86,16 @@ RUN apt-get -y update && \
 		xz-utils \
 		thrift-compiler
 
-# Install multi-lib gcc (x86 only)
-RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
-	apt-get install --no-install-recommends -y \
-		gcc-multilib \
-		g++-multilib \
-	; fi
-
 # Install i386 packages (x86 only)
 RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 	dpkg --add-architecture i386 && \
 	apt-get -y update && \
 	apt-get -y upgrade && \
 	apt-get install --no-install-recommends -y \
-		libsdl2-dev:i386 libfuse-dev:i386 libc6-dbg:i386 \
+		gcc-multilib \
+		g++-multilib && \
+	apt-get install --no-install-recommends -y \
+		libsdl2-dev:i386 libfuse-dev:i386 libc6-dbg:i386 python3 \
 	; fi
 
 # Initialise system locale
@@ -105,11 +104,16 @@ ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
+RUN mkdir -p ${PYTHON_VENV_PATH} && \
+    python3 -m venv ${PYTHON_VENV_PATH}
+
+ENV PATH=${PYTHON_VENV_PATH}/bin:$PATH
+
+RUN cd ${PYTHON_VENV_PATH}/bin && \
+    pip install --no-cache-dir --upgrade pip setuptools wheel
+
 # Install Python dependencies
-RUN python3 -m pip install -U --no-cache-dir pip && \
-	pip3 install -U --no-cache-dir wheel setuptools && \
-	pip3 install --no-cache-dir pygobject && \
-	pip3 install --no-cache-dir \
+RUN pip3 install --no-cache-dir \
 		-r https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/main/scripts/requirements.txt \
 		-r https://raw.githubusercontent.com/zephyrproject-rtos/mcuboot/main/scripts/requirements.txt \
 		GitPython imgtool junitparser junit2html numpy protobuf PyGithub \
