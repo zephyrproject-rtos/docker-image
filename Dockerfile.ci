@@ -140,6 +140,10 @@ RUN mkdir -p /opt/toolchains && \
 #
 # Ecosystem FVP License permits redistribution (refer to the relevant license available in the container).
 RUN set -o pipefail && \
+	apt update && \
+	apt install software-properties-common && \
+	add-apt-repository -y ppa:deadsnakes/ppa && \
+	apt install -y python3.9-dev && \
 	mkdir -p /opt/fvps && \
 	cd /opt/fvps && \
 	if [ "${HOSTTYPE}" = "x86_64" ]; then SUFFIX=""; else SUFFIX="_armv8l"; fi && \
