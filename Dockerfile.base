@@ -120,7 +120,7 @@ RUN cd ${PYTHON_VENV_PATH}/bin && \
 RUN pip3 install --no-cache-dir \
 		-r https://raw.githubusercontent.com/zephyrproject-rtos/zephyr/main/scripts/requirements.txt \
 		-r https://raw.githubusercontent.com/zephyrproject-rtos/mcuboot/main/scripts/requirements.txt \
-		GitPython imgtool junitparser junit2html numpy protobuf PyGithub \
+		GitPython imgtool junitparser junit2html numpy protobuf grpcio-tools PyGithub \
 		pylint sh statistics west \
 		nrf-regtool~=9.0.1
 # Run pip check on x86 only for now, it fails on arm.
