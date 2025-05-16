@@ -2,6 +2,7 @@
 
 FROM ubuntu:24.04
 
+ARG USERNAME=user
 ARG UID=1000
 ARG GID=1000
 ARG PYTHON_VENV_PATH=/opt/python/venv
@@ -134,10 +135,10 @@ RUN apt-get clean -y && \
 	rm -rf /var/lib/apt/lists/*
 
 # Create 'user' account
-RUN groupadd -g $GID -o user
+RUN groupadd -g $GID -o $USERNAME
 
-RUN useradd -u $UID -m -g user -G plugdev user \
-	&& echo 'user ALL = NOPASSWD: ALL' > /etc/sudoers.d/user \
-	&& chmod 0440 /etc/sudoers.d/user
+RUN useradd -u $UID -m -g $USERNAME -G plugdev $USERNAME \
+	&& echo $USERNAME ' ALL = NOPASSWD: ALL' > /etc/sudoers.d/$USERNAME \
+	&& chmod 0440 /etc/sudoers.d/$USERNAME
 
 USER root

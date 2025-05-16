@@ -77,6 +77,50 @@ It can be used for building Zephyr samples and tests by mounting the Zephyr work
 docker run -ti -v <path to zephyr workspace>:/workdir zephyr-build:v<tag>
 ```
 
+#### Using SSH Agent with Docker Image
+
+The docker images can be built to use the SSH agent on the host to provide authorization
+to assets like restricted git repos.  To do this there are a few requirements.  One of which
+is that the user name of the processes inside the docker container must match the real user
+name on the host.  The USERNAME build argument can be passed into the build process to override
+the default user name.  Note that all three images need to be built locally with this USERNAME
+argument set correctly.
+
+```
+docker build -f Dockerfile.base \
+   --build-arg UID=$(id -u) \
+   --build-arg GID=$(id -g) \
+   --build-arg USERNAME=$(id -u -n) \
+    -t ci-base:<tag> .
+```
+```
+docker build -f Dockerfile.ci \
+    --build-arg UID=$(id -u) \
+    --build-arg GID=$(id -g) \
+    --build-arg USERNAME=$(id -u -n) \
+    --build-arg BASE_IMAGE=ci-base:v4.0-branch \
+    -t ci:<tag> .
+```
+```
+ docker build -f Dockerfile.devel \
+     --build-arg UID=$(id -u) \
+     --build-arg GID=$(id -g) \
+     --build-arg USERNAME=$(id -u -n) \
+     --build-arg BASE_IMAGE=ci:v4.0-branch \
+     -t devel:<tag> .
+```
+
+Then when running the ci or devel image there are additional command line arguments to
+connect the host ssh-agent ports to the ssh-agent ports inside the container.
+
+```
+docker run -ti \
+    -v $HOME/Work/zephyrproject:/workdir \
+    --mount type=bind,src=$SSH_AUTH_SOCK,target=/run/host-services/ssh-auth.sock \
+    --env SSH_AUTH_SOCK="/run/host-services/ssh-auth.sock" \
+    devel:<tag>
+```
+
 ### Usage
 
 #### Building a sample application
