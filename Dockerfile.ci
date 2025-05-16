@@ -4,7 +4,7 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE:-zephyrprojectrtos/ci-base:latest}
 
 ARG USERNAME=user
-ARG ZSDK_VERSION=0.17.1-rc1
+ARG ZSDK_VERSION=0.17.1-rc2
 ENV ZSDK_VERSION=$ZSDK_VERSION
 ARG KITWARE_NINJA_VERSION=1.11.1.g95dee.kitware.jobserver-1
 ENV KITWARE_NINJA_VERSION=$KITWARE_NINJA_VERSION
@@ -14,9 +14,9 @@ ARG DOXYGEN_VERSION=1.9.4
 ENV DOXYGEN_VERSION=$DOXYGEN_VERSION
 ARG RENODE_VERSION=1.15.3
 ENV RENODE_VERSION=$RENODE_VERSION
-ARG LLVM_VERSION=16
+ARG LLVM_VERSION=20
 ENV LLVM_VERSION=$LLVM_VERSION
-ARG BSIM_VERSION=v2.5
+ARG BSIM_VERSION=v2.6
 ENV BSIM_VERSION=$BSIM_VERSION
 ARG SPARSE_VERSION=9212270048c3bd23f56c20a83d4f89b870b2b26e
 ENV SPARSE_VERSION=$SPARSE_VERSION
@@ -57,7 +57,7 @@ RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 # Install Doxygen (x86 only)
 # NOTE: Pre-built Doxygen binaries are only available for x86_64 host.
 RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
-	wget ${WGET_ARGS} https://downloads.sourceforge.net/project/doxygen/rel-${DOXYGEN_VERSION}/doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz && \
+	wget ${WGET_ARGS} "https://github.com/doxygen/doxygen/releases/download/Release_${DOXYGEN_VERSION//./_}/doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz" && \
 	tar xf doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz -C /opt && \
 	ln -s /opt/doxygen-${DOXYGEN_VERSION}/bin/doxygen /usr/local/bin && \
 	rm doxygen-${DOXYGEN_VERSION}.linux.bin.tar.gz \
@@ -141,6 +141,10 @@ RUN mkdir -p /opt/toolchains && \
 #
 # Ecosystem FVP License permits redistribution (refer to the relevant license available in the container).
 RUN set -o pipefail && \
+	apt update && \
+	apt install software-properties-common && \
+	add-apt-repository -y ppa:deadsnakes/ppa && \
+	apt install -y python3.9-dev && \
 	mkdir -p /opt/fvps && \
 	cd /opt/fvps && \
 	if [ "${HOSTTYPE}" = "x86_64" ]; then SUFFIX=""; else SUFFIX="_armv8l"; fi && \
