@@ -3,7 +3,7 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE:-zephyrprojectrtos/ci-base:latest}
 
-ARG ZSDK_VERSION=0.17.1-rc4
+ARG ZSDK_VERSION=0.17.1
 ENV ZSDK_VERSION=$ZSDK_VERSION
 ARG KITWARE_NINJA_VERSION=1.11.1.g95dee.kitware.jobserver-1
 ENV KITWARE_NINJA_VERSION=$KITWARE_NINJA_VERSION
@@ -128,14 +128,6 @@ RUN mkdir -p /opt/protoc && \
 	ln -s /opt/protoc/bin/protoc /usr/local/bin && \
 	rm -f protoc-${PROTOC_VERSION}-linux-${PROTOC_HOSTTYPE}.zip
 
-# Install Zephyr SDK
-RUN mkdir -p /opt/toolchains && \
-	cd /opt/toolchains && \
-	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz && \
-	tar xf zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz && \
-	zephyr-sdk-${ZSDK_VERSION}/setup.sh -t all -h -c && \
-	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz
-
 # Install FVP
 #
 # Ecosystem FVP License permits redistribution (refer to the relevant license available in the container).
@@ -174,6 +166,15 @@ RUN set -o pipefail && \
 	&& wget ${WGET_ARGS} -O- https://developer.arm.com/-/cdn-downloads/permalink/FVPs-Architecture/FM-${version}/FVP_Base_${base}_${version_build}_Linux64${SUFFIX}.tgz | tar xz \
 	; done && \
 	ln -s /opt/fvps/*_pkg/models/*/FVP_* /usr/local/bin
+
+# Install Zephyr SDK
+RUN mkdir -p /opt/toolchains && \
+	cd /opt/toolchains && \
+	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz && \
+	tar xf zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz && \
+	zephyr-sdk-${ZSDK_VERSION}/setup.sh -t all -h -c && \
+	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz
+
 
 # Clean up stale packages
 RUN apt-get clean -y && \
