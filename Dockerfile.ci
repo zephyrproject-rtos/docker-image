@@ -3,6 +3,7 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE:-zephyrprojectrtos/ci-base:latest}
 
+ARG USERNAME=user
 ARG ZSDK_VERSION=0.17.1
 ENV ZSDK_VERSION=$ZSDK_VERSION
 ARG KITWARE_NINJA_VERSION=1.11.1.g95dee.kitware.jobserver-1
@@ -184,11 +185,11 @@ RUN apt-get clean -y && \
 # Run the Zephyr SDK setup script as 'user' in order to ensure that the
 # `Zephyr-sdk` CMake package is located in the package registry under the
 # user's home directory.
-USER user
+USER $USERNAME
 
 RUN sudo -E -- bash -c ' \
 	/opt/toolchains/zephyr-sdk-${ZSDK_VERSION}/setup.sh -c && \
-	chown -R user:user /home/user/.cmake \
+	chown -R $USERNAME:$USERNAME /home/$USERNAME/.cmake \
 	'
 
 USER root
