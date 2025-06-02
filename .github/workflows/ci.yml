@@ -127,6 +127,10 @@ jobs:
         containerfiles: Dockerfile.base
         tags: ${{ steps.meta_base.outputs.tags }}
         labels: ${{ steps.meta_base.outputs.labels }}
+        build-args: |
+          UBUNTU_MIRROR_ARCHIVE=mirror.hetzner.com/ubuntu/packages
+          UBUNTU_MIRROR_SECURITY=mirror.hetzner.com/ubuntu/security
+          UBUNTU_MIRROR_PORTS=mirror.hetzner.com/ubuntu-ports/packages
 
     - name: Build CI image
       uses: redhat-actions/buildah-build@v2
