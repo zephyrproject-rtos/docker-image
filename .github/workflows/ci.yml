@@ -46,6 +46,12 @@ jobs:
           builder: zephyr-runner-v2-linux-arm64-4xlarge
 
     steps:
+    - name: Print cloud service information
+      run: |
+	echo "ZEPHYR_RUNNER_CLOUD_PROVIDER = ${ZEPHYR_RUNNER_CLOUD_PROVIDER}"
+	echo "ZEPHYR_RUNNER_CLOUD_NODE = ${ZEPHYR_RUNNER_CLOUD_NODE}"
+	echo "ZEPHYR_RUNNER_CLOUD_POD = ${ZEPHYR_RUNNER_CLOUD_POD}"
+
     - name: Configure temporary directory
       run: |
         mkdir -p /__w/tmp
@@ -184,6 +190,12 @@ jobs:
     if: ${{ github.event_name != 'pull_request' }}
 
     steps:
+    - name: Print cloud service information
+      run: |
+	echo "ZEPHYR_RUNNER_CLOUD_PROVIDER = ${ZEPHYR_RUNNER_CLOUD_PROVIDER}"
+	echo "ZEPHYR_RUNNER_CLOUD_NODE = ${ZEPHYR_RUNNER_CLOUD_NODE}"
+	echo "ZEPHYR_RUNNER_CLOUD_POD = ${ZEPHYR_RUNNER_CLOUD_POD}"
+
     - name: Configure temporary directory
       run: |
         mkdir -p /__w/tmp
