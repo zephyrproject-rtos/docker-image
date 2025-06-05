@@ -4,7 +4,7 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE:-zephyrprojectrtos/ci-base:latest}
 
 ARG USERNAME=user
-ARG ZSDK_VERSION=0.17.1
+ARG ZSDK_VERSION=0.18.0-alpha4
 ENV ZSDK_VERSION=$ZSDK_VERSION
 ARG KITWARE_NINJA_VERSION=1.11.1.g95dee.kitware.jobserver-1
 ENV KITWARE_NINJA_VERSION=$KITWARE_NINJA_VERSION
@@ -169,12 +169,16 @@ RUN set -o pipefail && \
 	ln -s /opt/fvps/*_pkg/models/*/FVP_* /usr/local/bin
 
 # Install Zephyr SDK
+# https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v0.18.0-alpha4/zephyr-sdk-0.18.0-alpha4_linux-x86_64_gnu.tar.xz
 RUN mkdir -p /opt/toolchains && \
 	cd /opt/toolchains && \
-	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz && \
-	tar xf zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz && \
+	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}_gnu.tar.xz && \
+	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}_llvm.tar.xz && \
+	tar xf zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}_gnu.tar.xz && \
+	tar xf zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}_llvm.tar.xz && \
 	zephyr-sdk-${ZSDK_VERSION}/setup.sh -t all -h -c && \
-	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz
+	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}_gnu.tar.xz && \
+	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}_llvm.tar.xz
 
 
 # Clean up stale packages
