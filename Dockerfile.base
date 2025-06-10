@@ -103,7 +103,7 @@ RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 	apt-get -y update && \
 	apt-get install --no-install-recommends -y \
 		gcc-multilib \
-		g++-multilib \
+		g++-multilib && \
 		apt-get clean -y && \
 		apt-get autoremove --purge -y && \
 		rm -rf /var/lib/apt/lists/* \
@@ -115,7 +115,7 @@ RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 	apt-get -y update && \
 	apt-get -y upgrade && \
 	apt-get install --no-install-recommends -y \
-		libsdl2-dev:i386 libfuse-dev:i386 libc6-dbg:i386 python3\
+		libsdl2-dev:i386 libfuse-dev:i386 libc6-dbg:i386 python3 && \
 	apt-get clean -y && \
 	apt-get autoremove --purge -y && \
 	rm -rf /var/lib/apt/lists/* \
