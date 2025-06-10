@@ -73,6 +73,9 @@ RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 	wget ${WGET_ARGS} https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb && \
 	apt-get install -y ./renode_${RENODE_VERSION}_amd64.deb && \
 	rm renode_${RENODE_VERSION}_amd64.deb && \
+	apt-get clean -y && \
+	apt-get autoremove --purge -y && \
+	rm -rf /var/lib/apt/lists/* && \
 	pip3 install -r /opt/renode/tests/requirements.txt --no-cache-dir \
 	; fi
 
@@ -166,7 +169,10 @@ RUN set -o pipefail && \
 	&& IFS="_" read version build <<< "${version_build}" \
 	&& wget ${WGET_ARGS} -O- https://developer.arm.com/-/cdn-downloads/permalink/FVPs-Architecture/FM-${version}/FVP_Base_${base}_${version_build}_Linux64${SUFFIX}.tgz | tar xz \
 	; done && \
-	ln -s /opt/fvps/*_pkg/models/*/FVP_* /usr/local/bin
+	ln -s /opt/fvps/*_pkg/models/*/FVP_* /usr/local/bin && \
+	apt-get clean -y && \
+	apt-get autoremove --purge -y && \
+	rm -rf /var/lib/apt/lists/*
 
 # Install Zephyr SDK
 RUN mkdir -p /opt/toolchains && \
@@ -176,11 +182,6 @@ RUN mkdir -p /opt/toolchains && \
 	zephyr-sdk-${ZSDK_VERSION}/setup.sh -t all -h -c && \
 	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz
 
-
-# Clean up stale packages
-RUN apt-get clean -y && \
-	apt-get autoremove --purge -y && \
-	rm -rf /var/lib/apt/lists/*
 
 # Run the Zephyr SDK setup script as 'user' in order to ensure that the
 # `Zephyr-sdk` CMake package is located in the package registry under the
