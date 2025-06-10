@@ -93,13 +93,20 @@ RUN apt-get -y update && \
 		wget \
 		ovmf \
 		xz-utils \
-		thrift-compiler
+		thrift-compiler && \
+		apt-get clean -y && \
+		apt-get autoremove --purge -y && \
+		rm -rf /var/lib/apt/lists/*
 
 # Install multi-lib gcc (x86 only)
 RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
+	apt-get -y update && \
 	apt-get install --no-install-recommends -y \
 		gcc-multilib \
-		g++-multilib \
+		g++-multilib && \
+		apt-get clean -y && \
+		apt-get autoremove --purge -y && \
+		rm -rf /var/lib/apt/lists/* \
 	; fi
 
 # Install i386 packages (x86 only)
@@ -108,7 +115,10 @@ RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 	apt-get -y update && \
 	apt-get -y upgrade && \
 	apt-get install --no-install-recommends -y \
-		libsdl2-dev:i386 libfuse-dev:i386 libc6-dbg:i386 python3\
+		libsdl2-dev:i386 libfuse-dev:i386 libc6-dbg:i386 python3 && \
+	apt-get clean -y && \
+	apt-get autoremove --purge -y && \
+	rm -rf /var/lib/apt/lists/* \
 	; fi
 
 # Initialise system locale
@@ -136,11 +146,6 @@ RUN pip3 install --no-cache-dir \
 RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
 	pip3 check \
 	; fi
-
-# Clean up stale packages
-RUN apt-get clean -y && \
-	apt-get autoremove --purge -y && \
-	rm -rf /var/lib/apt/lists/*
 
 # Create 'user' account
 RUN groupadd -g $GID -o $USERNAME

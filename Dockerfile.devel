@@ -17,10 +17,8 @@ RUN apt-get -y update && \
 	xterm \
 	xz-utils \
 	usbutils \
-	vim
-
-# Clean up stale packages
-RUN apt-get clean -y && \
+	vim &&\
+	apt-get clean -y && \
 	apt-get autoremove --purge -y && \
 	rm -rf /var/lib/apt/lists/*
 
