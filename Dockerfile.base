@@ -20,13 +20,16 @@ SHELL ["/bin/bash", "-c"]
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Set up Ubuntu mirrors
-RUN sed -i "s#archive.ubuntu.com/ubuntu#${UBUNTU_MIRROR_ARCHIVE}#" /etc/apt/sources.list.d/ubuntu.sources && \
-	sed -i "s#security.ubuntu.com/ubuntu#${UBUNTU_MIRROR_SECURITY}#" /etc/apt/sources.list.d/ubuntu.sources && \
+RUN <<EOF
+	sed -i "s#archive.ubuntu.com/ubuntu#${UBUNTU_MIRROR_ARCHIVE}#" /etc/apt/sources.list.d/ubuntu.sources
+	sed -i "s#security.ubuntu.com/ubuntu#${UBUNTU_MIRROR_SECURITY}#" /etc/apt/sources.list.d/ubuntu.sources
 	sed -i "s#ports.ubuntu.com/ubuntu-ports#${UBUNTU_MIRROR_PORTS}#" /etc/apt/sources.list.d/ubuntu.sources
+EOF
 
 # Install base packages
-RUN apt-get -y update && \
-	apt-get -y upgrade && \
+RUN <<EOF
+	apt-get -y update
+	apt-get -y upgrade
 	apt-get install --no-install-recommends -y \
 		software-properties-common \
 		lsb-release \
@@ -94,22 +97,30 @@ RUN apt-get -y update && \
 		ovmf \
 		xz-utils \
 		thrift-compiler
+EOF
 
 # Install multi-lib gcc (x86 only)
-RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
-	apt-get install --no-install-recommends -y \
-		gcc-multilib \
-		g++-multilib \
-	; fi
+RUN <<EOF
+	if [ "${HOSTTYPE}" = "x86_64" ]; then
+		apt-get install --no-install-recommends -y \
+			gcc-multilib \
+			g++-multilib
+	fi
+EOF
 
 # Install i386 packages (x86 only)
-RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
-	dpkg --add-architecture i386 && \
-	apt-get -y update && \
-	apt-get -y upgrade && \
-	apt-get install --no-install-recommends -y \
-		libsdl2-dev:i386 libfuse-dev:i386 libc6-dbg:i386 python3\
-	; fi
+RUN <<EOF
+	if [ "${HOSTTYPE}" = "x86_64" ]; then
+		dpkg --add-architecture i386
+		apt-get -y update
+		apt-get -y upgrade
+		apt-get install --no-install-recommends -y \
+			libsdl2-dev:i386 \
+			libfuse-dev:i386 \
+			libc6-dbg:i386 \
+			python3
+	fi
+EOF
 
 # Initialise system locale
 RUN locale-gen en_US.UTF-8
@@ -117,13 +128,17 @@ ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
-RUN mkdir -p ${PYTHON_VENV_PATH} && \
-    python3 -m venv ${PYTHON_VENV_PATH}
+RUN <<EOF
+	mkdir -p ${PYTHON_VENV_PATH}
+	python3 -m venv ${PYTHON_VENV_PATH}
+EOF
 
 ENV PATH=${PYTHON_VENV_PATH}/bin:$PATH
 
-RUN cd ${PYTHON_VENV_PATH}/bin && \
-    pip install --no-cache-dir --upgrade pip setuptools wheel
+RUN <<EOF
+	cd ${PYTHON_VENV_PATH}/bin
+	pip install --no-cache-dir --upgrade pip setuptools wheel
+EOF
 
 # Install Python dependencies
 RUN pip3 install --no-cache-dir \
@@ -132,21 +147,28 @@ RUN pip3 install --no-cache-dir \
 		GitPython imgtool junitparser junit2html numpy protobuf grpcio-tools PyGithub \
 		pylint sh statistics west \
 		nrf-regtool~=9.0.1
+
 # Run pip check on x86 only for now, it fails on arm.
-RUN if [ "${HOSTTYPE}" = "x86_64" ]; then \
-	pip3 check \
-	; fi
+RUN <<EOF
+	if [ "${HOSTTYPE}" = "x86_64" ]; then
+		pip3 check
+	fi
+EOF
 
 # Clean up stale packages
-RUN apt-get clean -y && \
-	apt-get autoremove --purge -y && \
+RUN <<EOF
+	apt-get clean -y
+	apt-get autoremove --purge -y
 	rm -rf /var/lib/apt/lists/*
+EOF
 
 # Create 'user' account
 RUN groupadd -g $GID -o $USERNAME
 
-RUN useradd -u $UID -m -g $USERNAME -G plugdev $USERNAME \
-	&& echo $USERNAME ' ALL = NOPASSWD: ALL' > /etc/sudoers.d/$USERNAME \
-	&& chmod 0440 /etc/sudoers.d/$USERNAME
+RUN <<EOF
+	useradd -u $UID -m -g $USERNAME -G plugdev $USERNAME
+	echo $USERNAME ' ALL = NOPASSWD: ALL' > /etc/sudoers.d/$USERNAME
+	chmod 0440 /etc/sudoers.d/$USERNAME
+EOF
 
 USER root
