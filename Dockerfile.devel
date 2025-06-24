@@ -6,23 +6,27 @@ FROM ${BASE_IMAGE:-zephyrprojectrtos/ci:latest}
 ARG USERNAME=user
 
 # Install packages
-RUN apt-get -y update && \
-	apt-get -y upgrade && \
+RUN <<EOF
+	apt-get -y update
+	apt-get -y upgrade
 	apt-get install --no-install-recommends -y \
-	openbox \
-	python3-xdg \
-	libpython3-dev \
-	x11vnc \
-	xvfb \
-	xterm \
-	xz-utils \
-	usbutils \
-	vim
+		openbox \
+		python3-xdg \
+		libpython3-dev \
+		x11vnc \
+		xvfb \
+		xterm \
+		xz-utils \
+		usbutils \
+		vim
+EOF
 
 # Clean up stale packages
-RUN apt-get clean -y && \
-	apt-get autoremove --purge -y && \
+RUN <<EOF
+	apt-get clean -y
+	apt-get autoremove --purge -y
 	rm -rf /var/lib/apt/lists/*
+EOF
 
 # Add entrypoint script (it is in home because
 # I can't figure out how to get the $USERNAME
@@ -53,7 +57,10 @@ VOLUME ["/workdir"]
 
 # Configure VNC authentication
 ARG VNCPASSWD=zephyr
-RUN mkdir ~/.vnc && x11vnc -storepasswd ${VNCPASSWD} ~/.vnc/passwd
+RUN <<EOF
+	mkdir ~/.vnc
+	x11vnc -storepasswd ${VNCPASSWD} ~/.vnc/passwd
+EOF
 
 # Expose port 5900 for VNC
 EXPOSE 5900
