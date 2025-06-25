@@ -105,7 +105,8 @@ RUN <<EOF
 			g++-multilib
 
 		# Install 32-bit dependencies
-		apt-get install --no-install-recommends -y \
+		#apt-get install --no-install-recommends -y \
+		apt-get install -y \
 			libc6-dbg:i386 \
 			libfuse-dev:i386 \
 			libsdl2-dev:i386
