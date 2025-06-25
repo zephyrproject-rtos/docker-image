@@ -14,7 +14,7 @@ ARG UBUNTU_MIRROR_PORTS=ports.ubuntu.com/ubuntu-ports
 RUN userdel -r ubuntu || true
 
 # Set default shell during Docker image build to bash
-SHELL ["/bin/bash", "-c"]
+SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 
 # Set non-interactive frontend for apt-get to skip any user confirmations
 ENV DEBIAN_FRONTEND=noninteractive
