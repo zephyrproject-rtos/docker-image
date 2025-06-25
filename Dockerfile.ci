@@ -116,24 +116,6 @@ RUN <<EOF
 	ln -s /opt/bsim_west/bsim /opt/bsim
 EOF
 
-# Install cargo environment
-RUN wget -q -O-  "https://sh.rustup.rs" | sh -s -- -y --default-toolchain 1.86
-
-# Install uefi-run utility
-RUN ~/.cargo/bin/cargo install uefi-run --root /usr
-
-# Install target support for Rust.  This is the list as of the current
-# time.
-RUN <<EOF
-	~/.cargo/bin/rustup target install riscv32i-unknown-none-elf
-	~/.cargo/bin/rustup target install riscv64imac-unknown-none-elf
-	~/.cargo/bin/rustup target install thumbv6m-none-eabi
-	~/.cargo/bin/rustup target install thumbv7em-none-eabi
-	~/.cargo/bin/rustup target install thumbv7m-none-eabi
-	~/.cargo/bin/rustup target install thumbv8m.main-none-eabi
-	~/.cargo/bin/rustup target install x86_64-unknown-none
-EOF
-
 # Install sparse package for static analysis
 RUN <<EOF
 	mkdir -p /opt/sparse
@@ -222,6 +204,27 @@ RUN <<EOF
 EOF
 
 USER root
+
+# Set up Rust
+RUN <<EOF
+	# Install Cargo package manager
+	wget -q -O- "https://sh.rustup.rs" | sh -s -- -y --default-toolchain 1.86
+
+	# Make Cargo globally available for subsequent steps
+	PATH=~/.cargo/bin:$PATH
+
+	# Install uefi-run utility
+	cargo install uefi-run --root /usr
+
+	# Install Rust target support required by Zephyr
+	rustup target install riscv32i-unknown-none-elf
+	rustup target install riscv64imac-unknown-none-elf
+	rustup target install thumbv6m-none-eabi
+	rustup target install thumbv7em-none-eabi
+	rustup target install thumbv7m-none-eabi
+	rustup target install thumbv8m.main-none-eabi
+	rustup target install x86_64-unknown-none
+EOF
 
 # Set the locale
 ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
