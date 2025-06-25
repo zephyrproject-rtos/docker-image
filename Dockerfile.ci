@@ -5,6 +5,9 @@ FROM ${BASE_IMAGE:-zephyrprojectrtos/ci-base:latest}
 
 ARG USERNAME=user
 ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll"
+ARG UBUNTU_MIRROR_ARCHIVE=archive.ubuntu.com/ubuntu
+ARG UBUNTU_MIRROR_SECURITY=security.ubuntu.com/ubuntu
+ARG UBUNTU_MIRROR_PORTS=ports.ubuntu.com/ubuntu-ports
 
 ARG ZSDK_VERSION=0.17.2
 ENV ZSDK_VERSION=$ZSDK_VERSION
@@ -39,6 +42,14 @@ ENV FVP_CORSTONE320_VERSION=$FVP_CORSTONE320_VERSION
 
 # Install APT packages
 RUN <<EOF
+	# Set up custom Ubuntu APT mirrors
+	pushd /etc/apt/sources.list.d
+	cp ubuntu.sources ubuntu.sources.bak
+	sed -i "s#archive.ubuntu.com/ubuntu#${UBUNTU_MIRROR_ARCHIVE}#" ubuntu.sources
+	sed -i "s#security.ubuntu.com/ubuntu#${UBUNTU_MIRROR_SECURITY}#" ubuntu.sources
+	sed -i "s#ports.ubuntu.com/ubuntu-ports#${UBUNTU_MIRROR_PORTS}#" ubuntu.sources
+	popd
+
 	# Install renode (x86 only)
 	# NOTE: Renode is currently only available for x86_64 host.
 	if [ "${HOSTTYPE}" = "x86_64" ]; then
@@ -68,6 +79,11 @@ RUN <<EOF
 	# Clean up local repository
 	apt-get clean -y
 	rm -rf /var/lib/apt/lists/*
+
+	# Restore original Ubuntu mirrors
+	pushd /etc/apt/sources.list.d
+	mv -f ubuntu.sources.bak ubuntu.sources
+	popd
 EOF
 
 # Install Kitware ninja
