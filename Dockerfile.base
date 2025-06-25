@@ -26,10 +26,18 @@ RUN <<EOF
 	sed -i "s#ports.ubuntu.com/ubuntu-ports#${UBUNTU_MIRROR_PORTS}#" /etc/apt/sources.list.d/ubuntu.sources
 EOF
 
-# Install base packages
+# Install APT packages
 RUN <<EOF
+	# Enable 32-bit package support for x86-64
+	if [ "${HOSTTYPE}" = "x86_64" ]; then
+		dpkg --add-architecture i386
+	fi
+
+	# Upgrade system packages
 	apt-get -y update
 	apt-get -y upgrade
+
+	# Install base packages
 	apt-get install --no-install-recommends -y \
 		software-properties-common \
 		lsb-release \
@@ -80,12 +88,6 @@ RUN <<EOF
 		openssh-client \
 		parallel \
 		pkg-config \
-		python3-dev \
-		python3-pip \
-		python3-ply \
-		python3-setuptools \
-		python-is-python3 \
-		python3-venv \
 		rsync \
 		socat \
 		srecord \
@@ -97,29 +99,42 @@ RUN <<EOF
 		ovmf \
 		xz-utils \
 		thrift-compiler
-EOF
 
-# Install multi-lib gcc (x86 only)
-RUN <<EOF
+	# Install x86-64 image-specific packages
 	if [ "${HOSTTYPE}" = "x86_64" ]; then
+		# Install multi-lib gcc
 		apt-get install --no-install-recommends -y \
 			gcc-multilib \
 			g++-multilib
-	fi
-EOF
 
-# Install i386 packages (x86 only)
-RUN <<EOF
-	if [ "${HOSTTYPE}" = "x86_64" ]; then
-		dpkg --add-architecture i386
-		apt-get -y update
-		apt-get -y upgrade
+		# Install 32-bit dependencies
 		apt-get install --no-install-recommends -y \
-			libsdl2-dev:i386 \
-			libfuse-dev:i386 \
 			libc6-dbg:i386 \
-			python3
+			libfuse-dev:i386 \
+			libsdl2-dev:i386
+
+		# Ensure that software-properties-common is installed because
+		# it may be removed by the above step
+		apt-get install --no-install-recommends -y \
+			software-properties-common
 	fi
+
+	# Install Python
+	apt-get install --no-install-recommends -y \
+		python3 \
+		python3-dev \
+		python3-pip \
+		python3-ply \
+		python3-setuptools \
+		python3-venv \
+		python-is-python3
+
+	# Clean up stale packages
+	apt-get autoremove --purge -y
+
+	# Clean up local repository
+	apt-get clean -y
+	rm -rf /var/lib/apt/lists/*
 EOF
 
 # Initialise system locale
@@ -153,13 +168,6 @@ RUN <<EOF
 	if [ "${HOSTTYPE}" = "x86_64" ]; then
 		pip3 check
 	fi
-EOF
-
-# Clean up stale packages
-RUN <<EOF
-	apt-get clean -y
-	apt-get autoremove --purge -y
-	rm -rf /var/lib/apt/lists/*
 EOF
 
 # Create 'user' account
