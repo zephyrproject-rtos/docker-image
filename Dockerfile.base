@@ -16,15 +16,16 @@ SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
 # Set non-interactive frontend for apt-get to skip any user confirmations
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Set up Ubuntu mirrors
-RUN <<EOF
-	sed -i "s#archive.ubuntu.com/ubuntu#${UBUNTU_MIRROR_ARCHIVE}#" /etc/apt/sources.list.d/ubuntu.sources
-	sed -i "s#security.ubuntu.com/ubuntu#${UBUNTU_MIRROR_SECURITY}#" /etc/apt/sources.list.d/ubuntu.sources
-	sed -i "s#ports.ubuntu.com/ubuntu-ports#${UBUNTU_MIRROR_PORTS}#" /etc/apt/sources.list.d/ubuntu.sources
-EOF
-
 # Install APT packages
 RUN <<EOF
+	# Set up custom Ubuntu APT mirrors
+	pushd /etc/apt/sources.list.d
+	cp ubuntu.sources ubuntu.sources.bak
+	sed -i "s#archive.ubuntu.com/ubuntu#${UBUNTU_MIRROR_ARCHIVE}#" ubuntu.sources
+	sed -i "s#security.ubuntu.com/ubuntu#${UBUNTU_MIRROR_SECURITY}#" ubuntu.sources
+	sed -i "s#ports.ubuntu.com/ubuntu-ports#${UBUNTU_MIRROR_PORTS}#" ubuntu.sources
+	popd
+
 	# Enable 32-bit package support for x86-64
 	if [ "${HOSTTYPE}" = "x86_64" ]; then
 		dpkg --add-architecture i386
@@ -133,6 +134,11 @@ RUN <<EOF
 	# Clean up local repository
 	apt-get clean -y
 	rm -rf /var/lib/apt/lists/*
+
+	# Restore original Ubuntu mirrors
+	pushd /etc/apt/sources.list.d
+	mv -f ubuntu.sources.bak ubuntu.sources
+	popd
 EOF
 
 # Initialise system locale
