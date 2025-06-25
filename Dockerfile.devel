@@ -5,10 +5,13 @@ FROM ${BASE_IMAGE:-zephyrprojectrtos/ci:latest}
 
 ARG USERNAME=user
 
-# Install packages
+# Install APT packages
 RUN <<EOF
+	# Upgrade system packages
 	apt-get -y update
 	apt-get -y upgrade
+
+	# Install development packages
 	apt-get install --no-install-recommends -y \
 		openbox \
 		python3-xdg \
@@ -19,13 +22,13 @@ RUN <<EOF
 		xz-utils \
 		usbutils \
 		vim
-EOF
 
-# Clean up stale packages
-RUN <<EOF
+	# Clean up stale packages
+	rm -rf /var/lib/apt/lists/*
+
+	# Clean up local repository
 	apt-get clean -y
 	apt-get autoremove --purge -y
-	rm -rf /var/lib/apt/lists/*
 EOF
 
 # Add entrypoint script (it is in home because
@@ -38,7 +41,6 @@ ENTRYPOINT ["/home/entrypoint.sh"]
 # Add bash completion script
 ADD ./bash_completion /home/$USERNAME/.bash_completion
 RUN mkdir -p /home/$USERNAME/.bash_completion.d
-
 
 # Adjust $USERNAME home directory permissions
 USER root
