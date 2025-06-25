@@ -50,18 +50,6 @@ RUN <<EOF
 	sed -i "s#ports.ubuntu.com/ubuntu-ports#${UBUNTU_MIRROR_PORTS}#" ubuntu.sources
 	popd
 
-	# Install renode (x86 only)
-	# NOTE: Renode is currently only available for x86_64 host.
-	if [ "${HOSTTYPE}" = "x86_64" ]; then
-		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-		echo "deb https://download.mono-project.com/repo/ubuntu stable-focal main" | tee /etc/apt/sources.list.d/mono-official-stable.list
-		apt-get -y update
-		wget ${WGET_ARGS} https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/renode_${RENODE_VERSION}_amd64.deb
-		apt-get install -y ./renode_${RENODE_VERSION}_amd64.deb
-		rm renode_${RENODE_VERSION}_amd64.deb
-		pip3 install -r /opt/renode/tests/requirements.txt --no-cache-dir
-	fi
-
 	# Install LLVM and Clang
 	wget ${WGET_ARGS} https://apt.llvm.org/llvm.sh
 	chmod +x llvm.sh
@@ -155,6 +143,24 @@ RUN <<EOF
 	ln -s /opt/protoc/bin/protoc /usr/local/bin
 	rm -f protoc-${PROTOC_VERSION}-linux-${PROTOC_HOSTTYPE}.zip
 EOF
+
+# Install renode (x86 only)
+# NOTE: Renode is currently only available for x86_64 host.
+# We're using the portable version of Renode, which is self-contained and includes dotnet
+RUN <<EOF
+	if [ "${HOSTTYPE}" = "x86_64" ]; then
+		RENODE_FILE=renode-${RENODE_VERSION}.linux-portable-dotnet.tar.gz
+		wget ${WGET_ARGS} https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/${RENODE_FILE}
+		mkdir -p /opt/renode
+		tar xf ${RENODE_FILE} -C /opt/renode --strip-components=1
+		rm ${RENODE_FILE}
+		pip3 install -r /opt/renode/tests/requirements.txt --no-cache-dir
+	fi
+EOF
+
+# Add renode to path, make sure not to use the host's path, 
+# see https://stackoverflow.com/a/65119275
+ENV PATH="/opt/renode:$PATH" 
 
 # Install FVP
 #
