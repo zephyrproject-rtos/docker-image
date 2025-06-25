@@ -139,6 +139,34 @@ jobs:
           echo "EOF"
         } >> $GITHUB_OUTPUT
 
+    - name: Generate CI image build arguments
+      id: buildarg_ci
+      run: |
+        {
+          echo "args<<EOF"
+          echo "BASE_IMAGE=${{ env.GHCR_BASE }}/${{ env.BASE_IMAGE_NAME }}:${{ steps.meta_base.outputs.version }}"
+          if [ "${ZEPHYR_RUNNER_CLOUD_PROVIDER}" == "Hetzner" ]; then
+            echo "UBUNTU_MIRROR_ARCHIVE=mirror.hetzner.com/ubuntu/packages"
+            echo "UBUNTU_MIRROR_SECURITY=mirror.hetzner.com/ubuntu/security"
+            echo "UBUNTU_MIRROR_PORTS=mirror.hetzner.com/ubuntu-ports/packages"
+          fi
+          echo "EOF"
+        } >> $GITHUB_OUTPUT
+
+    - name: Generate Developer image build arguments
+      id: buildarg_developer
+      run: |
+        {
+          echo "args<<EOF"
+          echo "BASE_IMAGE=${{ env.GHCR_BASE }}/${{ env.CI_IMAGE_NAME }}:${{ steps.meta_ci.outputs.version }}"
+          if [ "${ZEPHYR_RUNNER_CLOUD_PROVIDER}" == "Hetzner" ]; then
+            echo "UBUNTU_MIRROR_ARCHIVE=mirror.hetzner.com/ubuntu/packages"
+            echo "UBUNTU_MIRROR_SECURITY=mirror.hetzner.com/ubuntu/security"
+            echo "UBUNTU_MIRROR_PORTS=mirror.hetzner.com/ubuntu-ports/packages"
+          fi
+          echo "EOF"
+        } >> $GITHUB_OUTPUT
+
     - name: Build base image
       uses: redhat-actions/buildah-build@v2
       with:
@@ -155,8 +183,7 @@ jobs:
         containerfiles: Dockerfile.ci
         tags: ${{ steps.meta_ci.outputs.tags }}
         labels: ${{ steps.meta_ci.outputs.labels }}
-        build-args: |
-          BASE_IMAGE=${{ env.GHCR_BASE }}/${{ env.BASE_IMAGE_NAME }}:${{ steps.meta_base.outputs.version }}
+        build-args: ${{ steps.buildarg_ci.outputs.args }}
         extra-args: |
           --pull-never
 
@@ -167,8 +194,7 @@ jobs:
         containerfiles: Dockerfile.devel
         tags: ${{ steps.meta_developer.outputs.tags }}
         labels: ${{ steps.meta_developer.outputs.labels }}
-        build-args: |
-          BASE_IMAGE=${{ env.GHCR_BASE }}/${{ env.CI_IMAGE_NAME }}:${{ steps.meta_ci.outputs.version }}
+        build-args: ${{ steps.buildarg_developer.outputs.args }}
         extra-args: |
           --pull-never
 
