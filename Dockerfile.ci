@@ -158,9 +158,9 @@ RUN <<EOF
 	fi
 EOF
 
-# Add renode to path, make sure not to use the host's path, 
+# Add renode to path, make sure not to use the host's path,
 # see https://stackoverflow.com/a/65119275
-ENV PATH="/opt/renode:$PATH" 
+ENV PATH="/opt/renode:$PATH"
 
 # Install FVP
 #
