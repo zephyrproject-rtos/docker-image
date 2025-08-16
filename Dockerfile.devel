@@ -69,7 +69,6 @@ USER $USERNAME
 
 # Configure environment variables
 ENV DISPLAY=:0
-ENV ZEPHYR_BASE=/workdir/zephyr
 
 # Set working directory
 WORKDIR /workdir
