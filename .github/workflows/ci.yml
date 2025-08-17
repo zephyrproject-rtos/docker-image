@@ -35,7 +35,7 @@ jobs:
       image: ghcr.io/zephyrproject-rtos/image-build:v1.1.0
 
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         variant:
         - platform: linux/amd64
