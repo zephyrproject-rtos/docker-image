@@ -1,4 +1,6 @@
 # Developer Image (zephyr-build)
+#
+# This image contains additional tools that can be useful for Zephyr development.
 
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE:-zephyrprojectrtos/ci:latest}
