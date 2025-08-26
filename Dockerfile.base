@@ -115,6 +115,8 @@ RUN <<EOF
 		make \
 		net-tools \
 		ninja-build \
+		nodejs \
+		npm \
 		openssh-client \
 		parallel \
 		pkg-config \
