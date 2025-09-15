@@ -96,6 +96,7 @@ RUN <<EOF
 		git-core \
 		gnupg \
 		gperf \
+		graphviz \
 		help2man \
 		iproute2 \
 		lcov \
