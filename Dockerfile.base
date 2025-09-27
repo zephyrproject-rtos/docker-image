@@ -158,10 +158,16 @@ RUN <<EOF
 	fi
 
 	# Install LLVM and Clang
-	wget ${WGET_ARGS} https://apt.llvm.org/llvm.sh
-	chmod +x llvm.sh
-	./llvm.sh ${LLVM_VERSION} all
-	rm -f llvm.sh
+	apt-get install --no-install-recommends -y \
+		clang-${LLVM_VERSION} \
+		clang-format-${LLVM_VERSION} \
+		clang-tidy-${LLVM_VERSION} \
+		clang-tools-${LLVM_VERSION} \
+		clangd-${LLVM_VERSION} \
+		libc++-${LLVM_VERSION}-dev \
+		lld-${LLVM_VERSION} \
+		lldb-${LLVM_VERSION} \
+		llvm-${LLVM_VERSION}
 
 	# Install Python 3.9 for FVP
 	add-apt-repository -y ppa:deadsnakes/ppa
