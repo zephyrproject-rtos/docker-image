@@ -168,9 +168,11 @@ RUN <<EOF
 		clang-tools-${LLVM_VERSION} \
 		clangd-${LLVM_VERSION} \
 		libc++-${LLVM_VERSION}-dev \
+		libclang-rt-${LLVM_VERSION}-dev \
 		lld-${LLVM_VERSION} \
 		lldb-${LLVM_VERSION} \
-		llvm-${LLVM_VERSION}
+		llvm-${LLVM_VERSION} \
+		llvm-${LLVM_VERSION}-dev
 
 	# Install Python 3.9 for FVP
 	add-apt-repository -y ppa:deadsnakes/ppa
