@@ -288,6 +288,8 @@ RUN <<EOF
 	chmod ag+w . -R
 	ln -s /opt/bsim_west/bsim /opt/bsim
 EOF
+ENV BSIM_OUT_PATH=/opt/bsim
+ENV BSIM_COMPONENTS_PATH=/opt/bsim/components
 
 # Install sparse package for static analysis
 RUN <<EOF
