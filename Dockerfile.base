@@ -94,6 +94,7 @@ RUN <<EOF
 		gcc \
 		gcovr \
 		gdb \
+		gdisk \
 		git \
 		git-core \
 		gnupg \
@@ -137,6 +138,7 @@ RUN <<EOF
 		sudo \
 		texinfo \
 		unzip \
+		uuid-runtime \
 		valgrind \
 		wget \
 		ovmf \
