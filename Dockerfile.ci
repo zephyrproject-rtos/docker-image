@@ -8,17 +8,17 @@ FROM ${BASE_IMAGE:-zephyrprojectrtos/ci-base:latest}
 ARG USERNAME=user
 ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll"
 
-ARG ZSDK_VERSION=0.17.4
+ARG ZSDK_VERSION=1.0.0-rc1
 ENV ZSDK_VERSION=$ZSDK_VERSION
 
 # Install Zephyr SDK
 RUN <<EOF
 	mkdir -p /opt/toolchains
 	cd /opt/toolchains
-	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz
-	tar xf zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz
+	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}_gnu.tar.xz
+	tar xf zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}_gnu.tar.xz
 	zephyr-sdk-${ZSDK_VERSION}/setup.sh -t all -h -c
-	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}.tar.xz
+	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}_gnu.tar.xz
 EOF
 
 # Run the Zephyr SDK setup script as 'user' in order to ensure that the
