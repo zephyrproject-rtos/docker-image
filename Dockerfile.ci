@@ -8,7 +8,7 @@ FROM ${BASE_IMAGE:-zephyrprojectrtos/ci-base:latest}
 ARG USERNAME=user
 ARG WGET_ARGS="-q --show-progress --progress=bar:force:noscroll"
 
-ARG ZSDK_VERSION=1.0.0-rc1
+ARG ZSDK_VERSION=1.0.0
 ENV ZSDK_VERSION=$ZSDK_VERSION
 
 # Install Zephyr SDK
