@@ -312,18 +312,16 @@ RUN <<EOF
 	rm -f protoc-${PROTOC_VERSION}-linux-${PROTOC_HOSTTYPE}.zip
 EOF
 
-# Install renode (x86 only)
-# NOTE: Renode is currently only available for x86_64 host.
+# Install renode
 # We're using the portable version of Renode, which is self-contained and includes dotnet
 RUN <<EOF
-	if [ "${HOSTTYPE}" = "x86_64" ]; then
-		RENODE_FILE=renode-${RENODE_VERSION}.linux-portable-dotnet.tar.gz
-		wget ${WGET_ARGS} https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/${RENODE_FILE}
-		mkdir -p /opt/renode
-		tar xf ${RENODE_FILE} -C /opt/renode --strip-components=1
-		rm ${RENODE_FILE}
-		pip3 install -r /opt/renode/tests/requirements.txt --no-cache-dir
-	fi
+	[ "${HOSTTYPE}" = "aarch64" ] && ARCH_SUFFIX="-arm64"
+	RENODE_FILE=renode-${RENODE_VERSION}.linux${ARCH_SUFFIX}-portable-dotnet.tar.gz
+	wget ${WGET_ARGS} https://github.com/renode/renode/releases/download/v${RENODE_VERSION}/${RENODE_FILE}
+	mkdir -p /opt/renode
+	tar xf ${RENODE_FILE} -C /opt/renode --strip-components=1
+	rm ${RENODE_FILE}
+	pip3 install -r /opt/renode/tests/requirements.txt --no-cache-dir
 EOF
 
 # Add renode to path, make sure not to use the host's path,
