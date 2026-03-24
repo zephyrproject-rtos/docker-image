@@ -119,7 +119,6 @@ RUN <<EOF
 		locales \
 		make \
 		net-tools \
-		ninja-build \
 		nodejs \
 		npm \
 		openssh-client \
@@ -247,14 +246,12 @@ EOF
 ENV PATH=${PYTHON_VENV_PATH}/bin:$PATH
 
 # Install Kitware ninja
-# NOTE: Pre-built Kitware ninja binaries are only available for x86_64 host.
 RUN <<EOF
-	if [ "${HOSTTYPE}" = "x86_64" ]; then
-		wget ${WGET_ARGS} https://github.com/Kitware/ninja/releases/download/v${KITWARE_NINJA_VERSION}/ninja-${KITWARE_NINJA_VERSION}_x86_64-linux-gnu.tar.gz
-		tar xf ninja-${KITWARE_NINJA_VERSION}_x86_64-linux-gnu.tar.gz -C /opt
-		ln -s /opt/ninja-${KITWARE_NINJA_VERSION}_x86_64-linux-gnu/ninja /usr/local/bin
-		rm ninja-${KITWARE_NINJA_VERSION}_x86_64-linux-gnu.tar.gz
-	fi
+	NINJA_BASENAME=ninja-${KITWARE_NINJA_VERSION}_${HOSTTYPE}-linux-gnu
+	wget ${WGET_ARGS} https://github.com/Kitware/ninja/releases/download/v${KITWARE_NINJA_VERSION}/${NINJA_BASENAME}.tar.gz
+	tar xf ${NINJA_BASENAME}.tar.gz -C /opt
+	ln -s /opt/${NINJA_BASENAME}/ninja /usr/local/bin
+	rm ${NINJA_BASENAME}.tar.gz
 EOF
 
 # Install ccache
