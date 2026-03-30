@@ -1,0 +1,7 @@
+# These folders will be created while building in devcontainer
+.west/
+bootloader/
+build/
+modules/
+tools/
+zephyr/
