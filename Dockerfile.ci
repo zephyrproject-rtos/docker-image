@@ -35,5 +35,17 @@ EOF
 
 USER root
 
+# Install TriCore GCC for AURIX (x86_64 only)
+RUN <<EOF
+	if [ "${HOSTTYPE}" = "x86_64" ]; then
+		wget ${WGET_ARGS} https://github.com/Linumiz/aurix-gcc-toolchain/releases/download/v11.3.0/aurixgcc_03-2026_Linux_x86-x64.zip
+		mkdir -p /opt/toolchains/tricore-elf
+		unzip -o aurixgcc_03-2026_Linux_x86-x64.zip -d /opt/toolchains/tricore-elf
+		chmod +x /opt/toolchains/tricore-elf/bin/*
+		chmod +x /opt/toolchains/tricore-elf/tricore-elf/bin/*
+		rm aurixgcc_03-2026_Linux_x86-x64.zip
+	fi
+EOF
+
 # Set build environment variables
 ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
