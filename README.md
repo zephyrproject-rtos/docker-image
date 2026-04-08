@@ -8,6 +8,14 @@ This repository contains the Dockerfiles for the following images:
 - **Developer Image (_zephyr-build_):** includes additional tools that can be useful for Zephyr
   development.
 
+The Docker images hosted by this repository provide the "full" environment for upstream Zephyr CI
+testing and development, containing the toolchains for all supported architectures and various other
+tools for testing.
+
+If you are looking for a smaller image for downstream CI or local development targeting a specific
+architecture, consider using the [Zephyr image provided by the Embedded Containers
+project](https://github.com/embeddedcontainers/zephyr).
+
 ## Developer Docker Image
 
 ### Overview
