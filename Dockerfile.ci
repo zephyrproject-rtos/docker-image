@@ -47,5 +47,20 @@ RUN <<EOF
 	fi
 EOF
 
+# Install TriCore QEMU for AURIX (x86_64 only)
+RUN <<EOF
+	if [ "${HOSTTYPE}" = "x86_64" ]; then
+		apt-get update
+		apt-get install -y --no-install-recommends libpixman-1-0
+		wget ${WGET_ARGS} https://github.com/linumiz/qemu-tricore/releases/download/v1.0.0/qemu-tricore-linux-x86_64.tar.gz
+		mkdir -p /opt/qemu-tricore
+		tar -xzf qemu-tricore-linux-x86_64.tar.gz -C /opt/qemu-tricore
+		rm qemu-tricore-linux-x86_64.tar.gz
+		apt-get clean
+		rm -rf /var/lib/apt/lists/*
+	fi
+EOF
+ENV PATH="/opt/qemu-tricore/bin:${PATH}"
+
 # Set build environment variables
 ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
