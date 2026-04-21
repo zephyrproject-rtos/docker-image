@@ -17,7 +17,7 @@ RUN <<EOF
 	cd /opt/toolchains
 	wget ${WGET_ARGS} https://github.com/zephyrproject-rtos/sdk-ng/releases/download/v${ZSDK_VERSION}/zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}_gnu.tar.xz
 	tar xf zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}_gnu.tar.xz
-	zephyr-sdk-${ZSDK_VERSION}/setup.sh -t all -h -c
+	zephyr-sdk-${ZSDK_VERSION}/setup.sh -l -t all -h -c
 	rm zephyr-sdk-${ZSDK_VERSION}_linux-${HOSTTYPE}_gnu.tar.xz
 EOF
 
