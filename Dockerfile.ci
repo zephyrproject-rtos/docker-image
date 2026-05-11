@@ -41,9 +41,13 @@ RUN <<EOF
 		wget ${WGET_ARGS} https://github.com/Linumiz/aurix-gcc-toolchain/releases/download/v11.3.0/aurixgcc_03-2026_Linux_x86-x64.zip
 		mkdir -p /opt/toolchains/tricore-elf
 		unzip -o aurixgcc_03-2026_Linux_x86-x64.zip -d /opt/toolchains/tricore-elf
-		chmod +x /opt/toolchains/tricore-elf/bin/*
-		chmod +x /opt/toolchains/tricore-elf/tricore-elf/bin/*
+		chmod -R +x /opt/toolchains/tricore-elf/bin \
+		            /opt/toolchains/tricore-elf/tricore-elf/bin \
+		            /opt/toolchains/tricore-elf/libexec
 		rm aurixgcc_03-2026_Linux_x86-x64.zip
+		echo 'int main(void){return 0;}' > /tmp/__tricore_smoke.c
+		/opt/toolchains/tricore-elf/bin/tricore-elf-gcc -c /tmp/__tricore_smoke.c -o /tmp/__tricore_smoke.o
+		rm /tmp/__tricore_smoke.c /tmp/__tricore_smoke.o
 	fi
 EOF
 
