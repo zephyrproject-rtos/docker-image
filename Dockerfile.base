@@ -239,6 +239,9 @@ RUN <<EOF
 	if [ "${HOSTTYPE}" = "x86_64" ]; then
 		pip check
 	fi
+
+	# Symlink west to /usr/local/bin so it is available in shells that reset PATH (e.g. sudo su)
+	ln -s ${PYTHON_VENV_PATH}/bin/west /usr/local/bin
 EOF
 
 # Make Zephyr Python virtual environment available globally
@@ -403,6 +406,14 @@ RUN <<EOF
 
 	# Allow all users to write to the shared rustup and cargo homes (registry cache, toolchains, etc.)
 	chmod -R a+w $RUSTUP_HOME $CARGO_HOME
+
+	# Symlink cargo and rustup to /usr/local/bin so they are available in shells that reset PATH (e.g. sudo su)
+	ln -s /usr/local/cargo/bin/cargo /usr/local/bin
+	ln -s /usr/local/cargo/bin/rustup /usr/local/bin
+
+	# Persist RUSTUP_HOME and CARGO_HOME to /etc/environment so they survive sudo env_reset (e.g. sudo su)
+	echo 'RUSTUP_HOME=/usr/local/rustup' >> /etc/environment
+	echo 'CARGO_HOME=/usr/local/cargo' >> /etc/environment
 EOF
 
 # Create user account
