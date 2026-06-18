@@ -379,13 +379,15 @@ EOF
 
 ENV ARMFVP_BIN_PATH=/usr/local/bin
 
+# Make Cargo available globally
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:$PATH
+
 # Set up Rust
 RUN <<EOF
 	# Install Cargo package manager
 	wget -q -O- "https://sh.rustup.rs" | sh -s -- -y --default-toolchain 1.86
-
-	# Make Cargo globally available for subsequent steps
-	PATH=~/.cargo/bin:$PATH
 
 	# Install uefi-run utility
 	cargo install uefi-run --root /usr
@@ -398,6 +400,9 @@ RUN <<EOF
 	rustup target install thumbv7m-none-eabi
 	rustup target install thumbv8m.main-none-eabi
 	rustup target install x86_64-unknown-none
+
+	# Allow all users to write to the shared rustup and cargo homes (registry cache, toolchains, etc.)
+	chmod -R a+w $RUSTUP_HOME $CARGO_HOME
 EOF
 
 # Create user account
