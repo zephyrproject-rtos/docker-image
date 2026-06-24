@@ -66,5 +66,31 @@ RUN <<EOF
 EOF
 ENV PATH="/opt/qemu-tricore/bin:${PATH}"
 
+# Install Hexagon LLVM toolchain (x86_64 and aarch64)
+RUN <<EOF
+	if [ "${HOSTTYPE}" = "x86_64" ]; then
+		tarball="clang+llvm-22.1.8-cross-hexagon-unknown-linux-musl.tar.zst"
+		url="https://artifacts.codelinaro.org/artifactory/codelinaro-toolchain-for-hexagon/22.1.8________/${tarball}"
+		subdir="x86_64-ubuntu-22.04"
+	elif [ "${HOSTTYPE}" = "aarch64" ]; then
+		tarball="clang+llvm-22.1.8-cross-hexagon-unknown-linux-musl_aarch64-linux-gnu.tar.zst"
+		url="https://artifacts.codelinaro.org/artifactory/codelinaro-toolchain-for-hexagon/22.1.8________/${tarball}"
+		subdir="aarch64-linux-gnu"
+	fi
+	if [ -n "${tarball}" ]; then
+		apt-get update
+		apt-get install -y --no-install-recommends zstd
+		wget ${WGET_ARGS} "${url}"
+		mkdir -p /opt/toolchains/hexagon
+		tar --use-compress-program=unzstd --strip-components=1 -xf "${tarball}" -C /opt/toolchains/hexagon
+		rm "${tarball}"
+		ln -s /opt/toolchains/hexagon/${subdir} /opt/toolchains/hexagon/host
+		/opt/toolchains/hexagon/host/bin/clang --version
+		apt-get clean
+		rm -rf /var/lib/apt/lists/*
+	fi
+EOF
+ENV PATH="/opt/toolchains/hexagon/host/bin:${PATH}"
+
 # Set build environment variables
 ENV ZEPHYR_TOOLCHAIN_VARIANT=zephyr
