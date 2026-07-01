@@ -41,7 +41,7 @@ ARG FVP_CORSTONE315_VERSION=11.27_42
 ENV FVP_CORSTONE315_VERSION=$FVP_CORSTONE315_VERSION
 ARG FVP_CORSTONE320_VERSION=11.27_25
 ENV FVP_CORSTONE320_VERSION=$FVP_CORSTONE320_VERSION
-ARG FVP_CORSTONE1000_A320_VERSION=11.30_27
+ARG FVP_CORSTONE1000_A320_VERSION=11.31.cs1000_a320_2
 ENV FVP_CORSTONE1000_A320_VERSION=$FVP_CORSTONE1000_A320_VERSION
 
 # Set default shell during Docker image build to bash
@@ -358,10 +358,15 @@ RUN <<EOF
 
 	# Corstone-1000-A320 uses a different URL pattern (not SSE)
 	echo "Downloading Corstone-1000-A320 ${FVP_CORSTONE1000_A320_VERSION}"
-	wget ${WGET_ARGS} -O- https://developer.arm.com/-/cdn-downloads/permalink/FVPs-Corstone-IoT/Corstone-1000-with-Cortex-A320/FVP_Corstone_1000-A320_${FVP_CORSTONE1000_A320_VERSION}_Linux64${SUFFIX}.tgz | tar xz
-	./FVP_Corstone_1000-A320.sh --no-interactive --i-agree-to-the-contained-eula -d /opt/fvps/Corstone-1000-A320
-	rm FVP_Corstone_1000-A320.sh
-	ln -s /opt/fvps/Corstone-1000-A320/models/*/FVP_* /usr/local/bin
+	if [ "${HOSTTYPE}" = "x86_64" ]; then
+		CORSTONE1000_SUFFIX="x86"
+	else
+		CORSTONE1000_SUFFIX="armv8"
+	fi
+	FVP_CORSTONE1000_A320_URL="https://developer.arm.com/-/cdn-downloads/permalink/FVPs-Corstone-IoT/Corstone-1000-with-Cortex-A320/FVP_Corstone_1000-A320_${FVP_CORSTONE1000_A320_VERSION}_Linux_${CORSTONE1000_SUFFIX}.tar.gz"
+	mkdir -p /opt/fvps/Corstone-1000-A320
+	wget ${WGET_ARGS} -O- "${FVP_CORSTONE1000_A320_URL}" | tar xz -C /opt/fvps/Corstone-1000-A320 --strip-components=1
+	ln -s /opt/fvps/Corstone-1000-A320/bin/FVP_Corstone-1000-A320 /usr/local/bin
 
 	declare -A FVP_EXTRACTABLE=(
 		["RevC-2xAEMvA"]="${FVP_BASE_REVC_VERSION}"
