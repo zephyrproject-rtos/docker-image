@@ -159,6 +159,8 @@ RUN <<EOF
 			libc6-dbg:i386 \
 			libfuse-dev:i386 \
 			libfuse3-dev:i386 \
+			libnl-3-dev:i386 \
+			libnl-genl-3-dev:i386 \
 			libsdl2-dev:i386
 	fi
 
