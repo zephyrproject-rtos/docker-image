@@ -43,6 +43,10 @@ ARG FVP_CORSTONE320_VERSION=11.27_25
 ENV FVP_CORSTONE320_VERSION=$FVP_CORSTONE320_VERSION
 ARG FVP_CORSTONE1000_A320_VERSION=11.31.cs1000_a320_2
 ENV FVP_CORSTONE1000_A320_VERSION=$FVP_CORSTONE1000_A320_VERSION
+# Must match PSA_CRYPTO_DRIVER_VERSION in TF-M's
+# platform/ext/target/arm/drivers/cc3xx/CMakeLists.txt
+ARG TFM_PSA_CRYPTO_DRIVERS_VERSION=3a93566
+ENV TFM_PSA_CRYPTO_DRIVERS_VERSION=$TFM_PSA_CRYPTO_DRIVERS_VERSION
 
 # Set default shell during Docker image build to bash
 SHELL ["/bin/bash", "-eo", "pipefail", "-c"]
@@ -299,6 +303,20 @@ RUN <<EOF
 	make -j8
 	PREFIX=/opt/sparse make install
 	rm -rf /opt/sparse/sparse
+EOF
+
+# Install the TF-M PSA crypto drivers (CryptoCell/cc3xx).
+#
+# TF-M's corstone1000 platform builds this driver unconditionally, BL1 links it
+# to verify the boot images, and TF-M would otherwise clone it while configuring
+# the build.  Zephyr does not allow build-time fetches, and twister rejects the
+# repository that then appears under the build directory, so provide it here and
+# let the board point TF-M at it.
+RUN <<EOF
+	git clone https://git.trustedfirmware.org/shared/tf-psa-crypto-drivers \
+		/opt/tf-psa-crypto-drivers
+	git -C /opt/tf-psa-crypto-drivers checkout \
+		${TFM_PSA_CRYPTO_DRIVERS_VERSION}
 EOF
 
 # Install protobuf-compiler
