@@ -130,7 +130,7 @@ docker run -ti \
     devel:<tag>
 ```
 
-### Usage
+### Usage with docker command-line
 
 #### Building a sample application
 
@@ -168,3 +168,64 @@ On a Ubuntu host, this can be done by running the following command:
 ```
 vncviewer localhost:5900
 ```
+
+### Using with devcontainer
+
+Visual Studio Code supports [devcontainers](https://github.com/devcontainers) / [vscode - devcontainers](https://code.visualstudio.com/docs/devcontainers/containers).
+
+This has substantial benefits compared with command-line docker. It is by far the easiest to get started with zephyr. You even may use github codespaces - see below.
+
+The following instructions have been tested on ubuntu and github codespaces.
+
+#### Local computer: Prepare
+
+```bash
+git clone https://github.com/zephyrproject-rtos/docker-image.git
+cd docker-image
+code .
+```
+
+#### Within vscode-container: Start devcontainer
+
+* vscode: A dialog opens "Reopen in Container": confirm!
+* vscode: Wait until you see _Finished configuring codespace_.
+* vscode: Menu _Terminal_ -> _New Terminal_
+
+#### Within vscode-container: Build and run
+
+```bash
+# Initialize the workspace (downloads Zephyr and modules)
+west init .
+west update
+
+# Build for QEMU x86
+west build -b qemu_x86 zephyr/samples/hello_world
+
+# Run in the QEMU emulator
+west build -t run
+```
+
+#### Local computer: Local folders
+
+During above build step folders like _/workdir/zephyr_ and _/workdir/modules_ have been created. These folders are mapped into the top of git repo _docker-image_.
+
+**Please note that the local folders belong to the current user and NOT to root - this is thanks to devcontainers! Even your git credentials are available from within the devcontainer.**
+
+### Add devcontiner to your project...
+
+To use devcontainers in jour project, you just have to copy the folder _.devcontainers_ into your project root. The rest of this repo is NOT needed.
+
+### Using with github codespaces
+
+_devcontainers_ are supported by _vscode_ AND _github codespaces_.
+
+**You will required at least 32GBytes of diskspace: Choose a machine with 32GBytes RAM and a 64GBytes disk.**
+
+To use this container in a _github codespace_ open https://github.com/zephyrproject-rtos/docker-image in google chrome.
+
+In google chrome:
+
+* Button _<> Code_ -> _Codespaces_ -> _Create codespace on main_
+* VSCode now opens in your browser. It takes a while to start the devcontainer. Wait until you see _Finished configuring codespace_.
+* Now you may continue with `west init .` as described above.
+
