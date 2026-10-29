@@ -41,6 +41,8 @@ ARG FVP_CORSTONE315_VERSION=11.27_42
 ENV FVP_CORSTONE315_VERSION=$FVP_CORSTONE315_VERSION
 ARG FVP_CORSTONE320_VERSION=11.27_25
 ENV FVP_CORSTONE320_VERSION=$FVP_CORSTONE320_VERSION
+ARG FVP_CORSTONE1000_VERSION=11.23_25
+ENV FVP_CORSTONE1000_VERSION=$FVP_CORSTONE1000_VERSION
 ARG FVP_CORSTONE1000_A320_VERSION=11.31.cs1000_a320_2
 ENV FVP_CORSTONE1000_A320_VERSION=$FVP_CORSTONE1000_A320_VERSION
 
@@ -344,17 +346,19 @@ RUN <<EOF
 	fi
 
 	declare -A FVP_INSTALLABLE=(
-		["300"]="${FVP_CORSTONE300_VERSION}"
-		["310"]="${FVP_CORSTONE310_VERSION}"
-		["315"]="${FVP_CORSTONE315_VERSION}"
-		["320"]="${FVP_CORSTONE320_VERSION}"
+		["SSE-300"]="${FVP_CORSTONE300_VERSION}"
+		["SSE-310"]="${FVP_CORSTONE310_VERSION}"
+		["SSE-315"]="${FVP_CORSTONE315_VERSION}"
+		["SSE-320"]="${FVP_CORSTONE320_VERSION}"
+		["1000"]="${FVP_CORSTONE1000_VERSION}"
 		)
-	for corstone in ${!FVP_INSTALLABLE[@]}; do
-		version_build="${FVP_INSTALLABLE[$corstone]}"
+	for model in ${!FVP_INSTALLABLE[@]}; do
+		corstone="${model#SSE-}"
+		version_build="${FVP_INSTALLABLE[$model]}"
 		echo "Downloading Corstone-${corstone} ${version_build}"
-		wget ${WGET_ARGS} -O- https://developer.arm.com/-/cdn-downloads/permalink/FVPs-Corstone-IoT/Corstone-${corstone}/FVP_Corstone_SSE-${corstone}_${version_build}_Linux64${SUFFIX}.tgz | tar xz
-		./FVP_Corstone_SSE-${corstone}.sh --no-interactive --i-agree-to-the-contained-eula -d /opt/fvps/Corstone-${corstone}
-		rm FVP_Corstone_SSE-${corstone}.sh
+		wget ${WGET_ARGS} -O- https://developer.arm.com/-/cdn-downloads/permalink/FVPs-Corstone-IoT/Corstone-${corstone}/FVP_Corstone_${model}_${version_build}_Linux64${SUFFIX}.tgz | tar xz
+		./FVP_Corstone_${model}.sh --no-interactive --i-agree-to-the-contained-eula -d /opt/fvps/Corstone-${corstone}
+		rm FVP_Corstone_${model}.sh
 		ln -s /opt/fvps/Corstone-${corstone}/models/*/FVP_* /usr/local/bin
 	done
 
