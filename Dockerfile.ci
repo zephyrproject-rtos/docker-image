@@ -66,6 +66,24 @@ RUN <<EOF
 EOF
 ENV PATH="/opt/qemu-tricore/bin:${PATH}"
 
+# Install RH850 GCC toolchain (x86_64 only)
+RUN <<EOF
+	if [ "${HOSTTYPE}" = "x86_64" ]; then
+		apt-get update
+		apt-get install -y --no-install-recommends libexpat1
+		wget ${WGET_ARGS} https://github.com/linumiz/rh850-gcc-toolchain/releases/download/v1.0.0/v850-elf-toolchain-linux-x86_64.tar.gz
+		mkdir -p /opt/toolchains/v850-elf
+		tar -xzf v850-elf-toolchain-linux-x86_64.tar.gz -C /opt/toolchains/v850-elf
+		rm v850-elf-toolchain-linux-x86_64.tar.gz
+		echo 'int main(void){return 0;}' > /tmp/__rh850_smoke.c
+		/opt/toolchains/v850-elf/bin/v850-elf-gcc -mv850e3v5 -mrh850-abi -c /tmp/__rh850_smoke.c -o /tmp/__rh850_smoke.o
+		rm /tmp/__rh850_smoke.c /tmp/__rh850_smoke.o
+		apt-get clean
+		rm -rf /var/lib/apt/lists/*
+	fi
+EOF
+ENV RH850_TOOLCHAIN_PATH=/opt/toolchains/v850-elf
+
 # Install Hexagon LLVM toolchain (x86_64 and aarch64)
 RUN <<EOF
 	if [ "${HOSTTYPE}" = "x86_64" ]; then
