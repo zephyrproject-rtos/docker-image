@@ -84,6 +84,22 @@ RUN <<EOF
 EOF
 ENV RH850_TOOLCHAIN_PATH=/opt/toolchains/v850-elf
 
+# Install RH850 QEMU (x86_64 only)
+RUN <<EOF
+	if [ "${HOSTTYPE}" = "x86_64" ]; then
+		apt-get update
+		apt-get install -y --no-install-recommends libglib2.0-0t64
+		wget ${WGET_ARGS} https://github.com/linumiz/qemu-rh850/releases/download/v1.0.0/qemu-rh850-linux-x86_64.tar.gz
+		mkdir -p /opt/qemu-rh850
+		tar -xzf qemu-rh850-linux-x86_64.tar.gz -C /opt/qemu-rh850
+		rm qemu-rh850-linux-x86_64.tar.gz
+		/opt/qemu-rh850/bin/qemu-system-rh850 --version
+		apt-get clean
+		rm -rf /var/lib/apt/lists/*
+	fi
+EOF
+ENV PATH="/opt/qemu-rh850/bin:${PATH}"
+
 # Install Hexagon LLVM toolchain (x86_64 and aarch64)
 RUN <<EOF
 	if [ "${HOSTTYPE}" = "x86_64" ]; then
