@@ -104,6 +104,7 @@ RUN <<EOF
 		help2man \
 		iproute2 \
 		lcov \
+		libasound2-dev \
 		libcairo2-dev \
 		libfuse3-dev \
 		libglib2.0-dev \
@@ -158,6 +159,7 @@ RUN <<EOF
 
 		# Install 32-bit dependencies
 		apt-get install --no-install-recommends -y \
+			libasound2-dev:i386 \
 			libc6-dbg:i386 \
 			libfuse-dev:i386 \
 			libfuse3-dev:i386 \
