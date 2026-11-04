@@ -111,6 +111,8 @@ RUN <<EOF
 		libgtk2.0-0 \
 		liblocale-gettext-perl \
 		libncurses5-dev \
+		libnl-3-dev \
+		libnl-genl-3-dev \
 		libpcap-dev \
 		libpopt0 \
 		libsdl1.2-dev \
