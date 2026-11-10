@@ -39,7 +39,7 @@ ARG FVP_CORSTONE310_VERSION=11.27_42
 ENV FVP_CORSTONE310_VERSION=$FVP_CORSTONE310_VERSION
 ARG FVP_CORSTONE315_VERSION=11.27_42
 ENV FVP_CORSTONE315_VERSION=$FVP_CORSTONE315_VERSION
-ARG FVP_CORSTONE320_VERSION=11.27_25
+ARG FVP_CORSTONE320_VERSION=11.32.cs320_3
 ENV FVP_CORSTONE320_VERSION=$FVP_CORSTONE320_VERSION
 ARG FVP_CORSTONE1000_VERSION=11.23_25
 ENV FVP_CORSTONE1000_VERSION=$FVP_CORSTONE1000_VERSION
@@ -345,25 +345,27 @@ RUN <<EOF
 
 	if [ "${HOSTTYPE}" = "x86_64" ]; then
 		SUFFIX=""
+		INSTALLER_ARCH="x86"
 	else
 		SUFFIX="_armv8l"
+		INSTALLER_ARCH="armv8"
 	fi
 
 	declare -A FVP_INSTALLABLE=(
-		["SSE-300"]="${FVP_CORSTONE300_VERSION}"
-		["SSE-310"]="${FVP_CORSTONE310_VERSION}"
-		["SSE-315"]="${FVP_CORSTONE315_VERSION}"
-		["SSE-320"]="${FVP_CORSTONE320_VERSION}"
-		["1000"]="${FVP_CORSTONE1000_VERSION}"
+		["SSE-300"]="${FVP_CORSTONE300_VERSION}_Linux64${SUFFIX}.tgz"
+		["SSE-310"]="${FVP_CORSTONE310_VERSION}_Linux64${SUFFIX}.tgz"
+		["SSE-315"]="${FVP_CORSTONE315_VERSION}_Linux64${SUFFIX}.tgz"
+		["SSE-320"]="${FVP_CORSTONE320_VERSION}_Linux_${INSTALLER_ARCH}.tar.gz"
+		["1000"]="${FVP_CORSTONE1000_VERSION}_Linux64${SUFFIX}.tgz"
 		)
 	for model in ${!FVP_INSTALLABLE[@]}; do
 		corstone="${model#SSE-}"
-		version_build="${FVP_INSTALLABLE[$model]}"
-		echo "Downloading Corstone-${corstone} ${version_build}"
-		wget ${WGET_ARGS} -O- https://developer.arm.com/-/cdn-downloads/permalink/FVPs-Corstone-IoT/Corstone-${corstone}/FVP_Corstone_${model}_${version_build}_Linux64${SUFFIX}.tgz | tar xz
-		./FVP_Corstone_${model}.sh --no-interactive --i-agree-to-the-contained-eula -d /opt/fvps/Corstone-${corstone}
-		rm FVP_Corstone_${model}.sh
-		ln -s /opt/fvps/Corstone-${corstone}/models/*/FVP_* /usr/local/bin
+		archive="FVP_Corstone_${model}_${FVP_INSTALLABLE[$model]}"
+		echo "Downloading ${archive}"
+		wget ${WGET_ARGS} -O- "https://developer.arm.com/-/cdn-downloads/permalink/FVPs-Corstone-IoT/Corstone-${corstone}/${archive}" | tar xz
+		./FVP_Corstone_${model}*.sh --no-interactive --i-agree-to-the-contained-eula -d /opt/fvps/Corstone-${corstone}
+		rm FVP_Corstone_${model}*.sh
+		find /opt/fvps/Corstone-${corstone} -type f -name 'FVP_*' -executable -exec ln -s {} /usr/local/bin \;
 	done
 
 	# Corstone-1000-A320 uses a different URL pattern (not SSE)
